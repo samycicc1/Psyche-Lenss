@@ -19,8 +19,7 @@ export interface SavedDream { id: string; date: string; narrative: string; analy
 export interface ChatMessage { role: 'user' | 'model'; text: string; }
 
 // --- AI SERVICE ---
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
+const ai = new GoogleGenAI({ apiKey:AIzaSyAtoTeJ676aX2EjEMZZ58ax2FgaBqxbMx8" });
 const ANALYSIS_SCHEMA = {
   type: Type.OBJECT,
   properties: {
