@@ -237,7 +237,7 @@
         const GoogleGenAIClient = window.GoogleGenAI;
         const Type = window.GoogleGenAI.Type;
 
-        // services/geminiService.ts
+        // services/geminiService.ts - Logic moved here
         const API_KEY = 'AIzaSyAtoTeJ676aX2EjEMZZ58ax2FgaBqxbMx8'; // Provided API Key
         const ai = new GoogleGenAIClient({ apiKey: API_KEY });
 
@@ -347,7 +347,7 @@
         }
 
 
-        // components/LoadingOverlay.tsx
+        // components/LoadingOverlay.tsx - Logic moved here
         const QUOTES = [
           "Who looks outside, dreams; who looks inside, awakes.",
           "The dream is the small hidden door in the deepest and most intimate sanctuary of the soul.",
@@ -446,7 +446,7 @@
         };
 
 
-        // components/SymbolCard.tsx
+        // components/SymbolCard.tsx - Logic moved here
         const SymbolCard = ({ symbol }) => {
           return React.createElement(
             'div',
@@ -463,7 +463,7 @@
         };
 
 
-        // components/ArchetypeCard.tsx
+        // components/ArchetypeCard.tsx - Logic moved here
         const ArchetypeCard = ({ archetype }) => {
           return React.createElement(
             'div',
@@ -484,7 +484,7 @@
         };
 
 
-        // App.tsx
+        // App.tsx - Logic moved here
         const AmbientDrone = ({ active, muted }) => {
           const audioCtxRef = useRef(null);
           const gainNodeRef = useRef(null);
@@ -679,6 +679,19 @@
               setView('result');
             } catch (err) {
               console.error(err);
+              // Fallback for analysis error
+              setAnalysis({
+                title: "Whispers from the Void",
+                summary: "An error occurred during analysis. The unconscious is vast and sometimes elusive. Please try again with a different narrative.",
+                category: "Shadow",
+                emotionalClimate: [{ label: "Uncertainty", percentage: 100 }],
+                symbols: [{ name: "Error", meaning: "A temporary disruption in the connection to the deep self.", jungianContext: "May represent a block or resistance in the analytical process." }],
+                archetypes: [{ name: "The Trickster", description: "An archetype of disruption and change.", manifestationInDream: "The unexpected error in analysis." }],
+                deepReflection: "Sometimes, the path to self-discovery is not linear. Embrace the challenge and persist.",
+                guidingQuestion: "What resistance might you be encountering in your journey?",
+                practicalSynthesis: "Reflect on any conscious blocks preventing you from accessing deeper insights. Try rephrasing your dream or meditating before inputting it again."
+              });
+              setView('result'); // Still show a result view, even if it's an error message
             } finally {
               setIsLoading(false);
             }
@@ -697,7 +710,8 @@
               const response = await sendChatMessage(dreamNarrative, analysis, chatMessages, messageToSend);
               setChatMessages(prev => [...prev, { role: 'model', text: response }]);
             } catch (err) {
-              setChatMessages(prev => [...prev, { role: 'model', text: "The path to the unconscious is temporarily interrupted. Please try again shortly." }]);
+              console.error("Chat error:", err);
+              setChatMessages(prev => [...prev, { role: 'model', text: "The path to the unconscious is temporarily interrupted. Please try your thought again." }]);
             } finally {
               setIsChatLoading(false);
             }
@@ -752,7 +766,7 @@
                   { className: "relative z-10 space-y-3" },
                   React.createElement(
                     'div',
-                    { className: "text-slate-200 text-xl md:text-2xl leading-relaxed italic font-light drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] min-h-[4em]" },
+                    { className: "text-slate-200 text-xl md:text-2xl leading-relaxed italic font-light drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] min-h-[4em] whitespace-nowrap" }, // Added whitespace-nowrap here
                     React.createElement(BlurTypewriter, { text: "Dreams are the guiding stars that illuminate the path towards the realization of one's Self." })
                   ),
                   React.createElement(
@@ -1289,7 +1303,7 @@
         };
 
 
-        // index.tsx logic
+        // index.tsx logic - entry point for React app
         const rootElement = document.getElementById('root');
         if (!rootElement) {
           throw new Error("Could not find root element to mount to");
