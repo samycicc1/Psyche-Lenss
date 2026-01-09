@@ -5,120 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Psyche Lens - Archetypal Dream Analysis</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a;
-            color: #f1f5f9;
-            margin: 0;
-            overflow-x: hidden;
-        }
-        h1, h2, h3, h4, .serif {
-            font-family: 'Libre Baskerville', serif;
-        }
-        .dream-gradient {
-            background: radial-gradient(circle at 50% 50%, #1e1b4b, #0f172a, #020617);
-            background-attachment: fixed;
-        }
-        .glass-card {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        
-        /* Starry Background Logic */
-        .stars-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.5;
-            animation: twinkle var(--duration) infinite ease-in-out;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-        .floating {
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        .animate-fadeIn {
-            animation: fadeIn 1.2s ease-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Aurora Animation */
-        @keyframes aurora-shift {
-            0% { transform: translate(-10%, -10%) scale(1) rotate(0deg); opacity: 0.3; }
-            33% { transform: translate(10%, 5%) scale(1.1) rotate(5deg); opacity: 0.5; }
-            66% { transform: translate(-5%, 10%) scale(0.9) rotate(-3deg); opacity: 0.4; }
-            100% { transform: translate(-10%, -10%) scale(1) rotate(0deg); opacity: 0.3; }
-        }
-        .animate-aurora {
-            animation: aurora-shift 15s infinite ease-in-out;
-        }
-
-        /* Blur Reveal Animation */
-        @keyframes blur-reveal {
-            0% { 
-                filter: blur(12px); 
-                opacity: 0; 
-                transform: scale(1.05); 
-            }
-            100% { 
-                filter: blur(0); 
-                opacity: 1; 
-                transform: scale(1); 
-            }
-        }
-        .letter-reveal {
-            display: inline-block;
-            opacity: 0;
-            animation: blur-reveal 1.2s forwards;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: rgba(129, 140, 248, 0.3);
-          border-radius: 10px;
-          border: 2px solid rgba(255, 255, 255, 0.05);
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; margin: 0; overflow-x: hidden; }
+        .dream-gradient { background: radial-gradient(circle at 50% 50%, #1e1b4b, #0f172a, #020617); background-attachment: fixed; }
+        .glass-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: twinkle var(--duration) infinite ease-in-out; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
     </style>
-    <script src="https://esm.sh/react@18.2.0?pin=v135"></script>
-    <script src="https://esm.sh/react-dom@18.2.0/client?pin=v135"></script>
+    <script src="https://esm.sh/react@18.2.0"></script>
+    <script src="https://esm.sh/react-dom@18.2.0/client"></script>
     <script src="https://esm.sh/@google/genai@1.34.0?bundle"></script>
 </head>
 <body class="dream-gradient min-h-screen">
@@ -126,97 +23,75 @@
     <div id="root"></div>
 
     <script>
-        // Stars Logic
-        const starsContainer = document.getElementById('stars-root');
+        // Generatore di stelle
+        const starsRoot = document.getElementById('stars-root');
         for (let i = 0; i < 150; i++) {
             const star = document.createElement('div');
             star.className = 'star';
-            const size = Math.random() * 2 + 1;
-            star.style.width = `${size}px`;
-            star.style.height = `${size}px`;
+            star.style.width = star.style.height = `${Math.random() * 2 + 1}px`;
             star.style.left = `${Math.random() * 100}%`;
             star.style.top = `${Math.random() * 100}%`;
             star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
-            star.style.animationDelay = `${Math.random() * 5}s`;
-            starsContainer.appendChild(star);
+            starsRoot.appendChild(star);
         }
 
-        // React Hooks
-        const { useState, useEffect, useCallback, useRef } = React;
+        const { useState, useEffect } = React;
 
-        // --- FIX GEMINI CLIENT ---
+        // --- CONFIGURAZIONE GEMINI ---
         const API_KEY = 'AIzaSyAtoTeJ676aX2EjEMZZ58ax2FgaBqxbMx8';
-        // Correct initialization for the @google/genai bundle
+        // Usiamo il riferimento globale corretto della libreria caricata tramite bundle
         const genAI = new window.GoogleGenAI.GoogleGenerativeAI(API_KEY);
 
-        const SYSTEM_INSTRUCTION = `You are "Psyche Lens", a Modern Jungian Mentor. Your tone is calm, wise, and accessible. Use fluent English. Explain complex terms like Archetype or Shadow with simple examples.`;
-
-        // Components
-        const LoadingOverlay = () => {
-            return React.createElement('div', { className: "fixed inset-0 bg-slate-950/95 z-[200] flex flex-col items-center justify-center p-8 backdrop-blur-xl" },
-                React.createElement('p', { className: "serif text-2xl text-indigo-100 italic animate-pulse" }, "Exploring the Unconscious...")
-            );
-        };
-
         const App = () => {
-            const [dreamNarrative, setDreamNarrative] = useState('');
-            const [isLoading, setIsLoading] = useState(false);
-            const [view, setView] = useState('input');
-            const [analysis, setAnalysis] = useState(null);
+            const [text, setText] = useState('');
+            const [result, setResult] = useState(null);
+            const [loading, setLoading] = useState(false);
 
-            const handleAnalyze = async () => {
-                if (!dreamNarrative.trim()) return;
-                setIsLoading(true);
+            const analyze = async () => {
+                if (!text.trim()) return;
+                setLoading(true);
                 try {
                     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                    const prompt = `Analyze this dream from a Jungian perspective. Provide a title, summary, and 3 symbols. Dream: ${dreamNarrative}`;
-                    const result = await model.generateContent(prompt);
-                    const response = await result.response;
-                    setAnalysis({ title: "Analysis Complete", summary: response.text() });
-                    setView('result');
-                } catch (err) {
-                    console.error(err);
-                    alert("The connection to the deep self was interrupted.");
+                    const prompt = "Analizza questo sogno in modo poetico e psicologico (in italiano): " + text;
+                    const res = await model.generateContent(prompt);
+                    setResult(res.response.text());
+                } catch (e) {
+                    console.error(e);
+                    alert("Errore di connessione con l'inconscio.");
                 } finally {
-                    setIsLoading(false);
+                    setLoading(false);
                 }
             };
 
-            if (isLoading) return React.createElement(LoadingOverlay);
-
-            if (view === 'result') {
-                return React.createElement('div', { className: "relative z-10 max-w-4xl mx-auto p-6 pt-20" },
-                    React.createElement('h1', { className: "text-4xl font-bold mb-6 text-indigo-300" }, analysis.title),
-                    React.createElement('div', { className: "glass-card p-8 rounded-3xl" },
-                        React.createElement('p', { className: "text-lg leading-relaxed text-slate-200" }, analysis.summary),
-                        React.createElement('button', { 
-                            onClick: () => setView('input'),
-                            className: "mt-8 px-6 py-2 bg-indigo-600 rounded-full hover:bg-indigo-500 transition-all"
-                        }, "Return to Reality")
-                    )
-                );
-            }
-
-            return React.createElement('div', { className: "relative z-10 max-w-4xl mx-auto p-6 pt-20 flex flex-col items-center" },
-                React.createElement('h1', { className: "text-5xl font-bold mb-2 text-indigo-300 serif" }, "Psyche Lens"),
-                React.createElement('p', { className: "text-slate-400 mb-12 tracking-widest uppercase text-xs" }, "Archetypal Dream Analysis"),
-                React.createElement('div', { className: "w-full glass-card p-1 rounded-3xl shadow-2xl" },
+            return React.createElement('div', { className: "relative z-10 max-w-2xl mx-auto p-6 pt-20" },
+                React.createElement('h1', { className: "text-4xl font-bold mb-2 text-indigo-300 text-center", style: { fontFamily: 'Libre Baskerville' } }, "Psyche Lens"),
+                React.createElement('p', { className: "text-center text-slate-400 mb-10 tracking-widest text-xs uppercase" }, "Analisi Archetipale dei Sogni"),
+                
+                !result ? React.createElement('div', { className: "glass-card p-6 rounded-3xl shadow-2xl" },
                     React.createElement('textarea', {
-                        value: dreamNarrative,
-                        onChange: (e) => setDreamNarrative(e.target.value),
-                        placeholder: "Describe your dream in detail...",
-                        className: "w-full h-64 bg-transparent p-8 text-xl text-slate-200 focus:outline-none resize-none placeholder:text-slate-600"
-                    })
-                ),
-                React.createElement('button', {
-                    onClick: handleAnalyze,
-                    className: "mt-8 px-12 py-4 bg-indigo-600 rounded-full font-bold text-white hover:bg-indigo-500 transition-all shadow-lg hover:shadow-indigo-500/20"
-                }, "Analyze Vision")
+                        className: "w-full h-48 bg-transparent text-white focus:outline-none resize-none placeholder:text-slate-600 text-lg",
+                        placeholder: "Cosa hai sognato stanotte?",
+                        value: text,
+                        onChange: (e) => setText(e.target.value)
+                    }),
+                    React.createElement('button', {
+                        className: "w-full mt-4 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold transition-all disabled:opacity-50",
+                        onClick: analyze,
+                        disabled: loading
+                    }, loading ? "Esplorando l'abisso..." : "Analizza Visione")
+                ) : React.createElement('div', { className: "glass-card p-8 rounded-3xl animate-fadeIn" },
+                    React.createElement('div', { className: "text-slate-200 leading-relaxed italic mb-6 whitespace-pre-wrap" }, result),
+                    React.createElement('button', {
+                        className: "text-indigo-400 font-bold hover:text-indigo-300",
+                        onClick: () => { setResult(null); setText(''); }
+                    }, "← Torna a sognare")
+                )
             );
         };
 
-        // --- MOUNT THE APP ---
-        const root = ReactDOM.createRoot(document.getElementById('root'));
+        // MONTAGGIO APP
+        const rootElement = document.getElementById('root');
+        const root = ReactDOM.createRoot(rootElement);
         root.render(React.createElement(App));
     </script>
 </body>
