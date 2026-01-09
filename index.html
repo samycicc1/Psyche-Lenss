@@ -148,10 +148,10 @@
         .title-enhanced {
             background: linear-gradient(
                 to right,
-                #0f172a, /* Blu Notte */
+                #0f172a, /* Dark Blue */
                 #312e81, /* Indigo */
-                #fbbf24, /* Oro Metallico */
-                #d4af37, /* Oro Scuro */
+                #fbbf24, /* Metallic Gold */
+                #d4af37, /* Dark Gold */
                 #312e81,
                 #0f172a
             );
@@ -244,12 +244,12 @@
         const ANALYSIS_SCHEMA = {
           type: Type.OBJECT,
           properties: {
-            title: { type: Type.STRING, description: "Un titolo poetico ed evocativo per il sogno" },
-            summary: { type: Type.STRING, description: "Sintesi psicologica del messaggio centrale dell'inconscio" },
+            title: { type: Type.STRING, description: "A poetic and evocative title for the dream" },
+            summary: { type: Type.STRING, description: "Psychological synthesis of the unconscious' central message" },
             category: { 
               type: Type.STRING, 
-              enum: ['Ombra', 'Intuizione', 'Emozione'],
-              description: "La categoria predominante del sogno" 
+              enum: ['Shadow', 'Intuition', 'Emotion'],
+              description: "The predominant category of the dream" 
             },
             emotionalClimate: {
               type: Type.ARRAY,
@@ -294,13 +294,13 @@
         };
 
         const SYSTEM_INSTRUCTION = `
-          Sei "Psyche Lens", un Mentore Junghiano Moderno. Il tuo tono è calmo, saggio ma estremamente accessibile e chiaro.
+          You are "Psyche Lens", a Modern Jungian Mentor. Your tone is calm, wise, but extremely accessible and clear.
           
-          REGOLE DI CONVERSAZIONE:
-          - Spiega i termini complessi (Archetipo, Ombra, Anima) con esempi semplici presi dalla vita quotidiana.
-          - Non essere eccessivamente accademico. Sii come un amico saggio che sa leggere l'anima.
-          - Usa un italiano fluente e moderno.
-          - Mantieni sempre il focus sul sogno dell'utente e sul suo processo di crescita (individuazione).
+          CONVERSATION RULES:
+          - Explain complex terms (Archetype, Shadow, Anima) with simple examples from everyday life.
+          - Do not be overly academic. Be like a wise friend who can read the soul.
+          - Use fluent and modern English.
+          - Always keep the focus on the user's dream and their process of growth (individuation).
         `;
 
         async function analyzeDream(narrative) {
@@ -308,7 +308,7 @@
           
           const response = await ai.models.generateContent({
             model: model,
-            contents: `Analizza questo sogno: "${narrative}"`,
+            contents: `Analyze this dream: "${narrative}"`,
             config: {
               systemInstruction: SYSTEM_INSTRUCTION,
               responseMimeType: "application/json",
@@ -316,7 +316,7 @@
             },
           });
 
-          if (!response.text) throw new Error("Nessuna risposta ricevuta.");
+          if (!response.text) throw new Error("No response received.");
           return JSON.parse(response.text);
         }
 
@@ -332,9 +332,9 @@
             model: model,
             config: {
               systemInstruction: `${SYSTEM_INSTRUCTION} 
-              Il contesto è questo sogno: "${narrative}". 
-              La tua analisi precedente era: ${JSON.stringify(analysis)}. 
-              Rispondi in modo conciso ma profondo, mantenendo il dialogo aperto.`,
+              The context is this dream: "${narrative}". 
+              Your previous analysis was: ${JSON.stringify(analysis)}. 
+              Respond concisely but deeply, keeping the dialogue open.`,
             },
             history: history.map(msg => ({
               role: msg.role,
@@ -343,18 +343,18 @@
           });
 
           const result = await chat.sendMessage({ message: newMessage });
-          return result.text || "La connessione con l'inconscio si è affievolita. Prova a ripetere il tuo pensiero.";
+          return result.text || "The connection to the unconscious has faded. Please try your thought again.";
         }
 
 
         // components/LoadingOverlay.tsx
         const QUOTES = [
-          "Chi guarda fuori sogna; chi guarda dentro si sveglia.",
-          "Il sogno è la piccola porta occulta che conduce alla parte più intima e segreta dell'anima.",
-          "Fino a quando non renderai conscio l'inconscio, esso dirigerà la tua vita e tu lo chiamerai destino.",
-          "Il tuo sogno è un dipinto dell'anima che attende di essere svelato.",
-          "Nel sogno, l'anima parla un linguaggio di immagini universali.",
-          "L'incontro con se stessi è, all'inizio, l'incontro con la propria ombra."
+          "Who looks outside, dreams; who looks inside, awakes.",
+          "The dream is the small hidden door in the deepest and most intimate sanctuary of the soul.",
+          "Until you make the unconscious conscious, it will direct your life and you will call it fate.",
+          "Your dream is a painting of the soul waiting to be unveiled.",
+          "In dreams, the soul speaks a language of universal images.",
+          "The encounter with oneself is, at first, the encounter with one's own shadow."
         ];
 
         const LoadingOverlay = () => {
@@ -431,7 +431,7 @@
               React.createElement(
                 'span',
                 { className: "text-slate-600 text-[10px] uppercase tracking-[0.6em] animate-pulse" },
-                "Esplorando l'Inconscio"
+                "Exploring the Unconscious"
               ),
               React.createElement(
                 'div',
@@ -456,7 +456,7 @@
             React.createElement(
               'div',
               { className: "text-slate-400 text-sm leading-relaxed" },
-              React.createElement('span', { className: "font-semibold text-slate-300" }, "Perspective Junguiana:"),
+              React.createElement('span', { className: "font-semibold text-slate-300" }, "Jungian Perspective:"),
               ` ${symbol.jungianContext}`
             )
           );
@@ -476,7 +476,7 @@
               React.createElement(
                 'p',
                 { className: "text-indigo-200 text-sm italic leading-relaxed" },
-                React.createElement('span', { className: "font-semibold text-indigo-100" }, "Presenza nel sogno:"),
+                React.createElement('span', { className: "font-semibold text-indigo-100" }, "Manifestation in Dream:"),
                 ` ${archetype.manifestationInDream}`
               )
             )
@@ -657,7 +657,7 @@
           const saveToHistory = (newAnalysis, narrative) => {
             const entry = {
               id: Date.now().toString(),
-              date: new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }),
+              date: new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }),
               narrative,
               analysis: newAnalysis
             };
@@ -674,7 +674,7 @@
             try {
               const result = await analyzeDream(dreamNarrative);
               setAnalysis(result);
-              setChatMessages([{ role: 'model', text: `Benvenuto. Ho analizzato la tua visione. Considera questa domanda per iniziare il nostro dialogo: "${result.guidingQuestion}"` }]);
+              setChatMessages([{ role: 'model', text: `Welcome. I have analyzed your vision. Consider this question to begin our dialogue: "${result.guidingQuestion}"` }]);
               saveToHistory(result, dreamNarrative);
               setView('result');
             } catch (err) {
@@ -697,7 +697,7 @@
               const response = await sendChatMessage(dreamNarrative, analysis, chatMessages, messageToSend);
               setChatMessages(prev => [...prev, { role: 'model', text: response }]);
             } catch (err) {
-              setChatMessages(prev => [...prev, { role: 'model', text: "Il sentiero verso l'inconscio è momentaneamente interrotto. Riprova tra poco." }]);
+              setChatMessages(prev => [...prev, { role: 'model', text: "The path to the unconscious is temporarily interrupted. Please try again shortly." }]);
             } finally {
               setIsChatLoading(false);
             }
@@ -712,19 +712,19 @@
 
           const getCategoryTag = (category) => {
             switch (category) {
-              case 'Ombra': return { icon: '🌑', label: 'Ombra', color: 'bg-slate-800 text-slate-300 border-slate-700' };
-              case 'Intuizione': return { icon: '💡', label: 'Intuizione', color: 'bg-amber-900/30 text-amber-200 border-amber-800/50' };
-              case 'Emozione': return { icon: '🌊', label: 'Emozione', color: 'bg-blue-900/30 text-blue-200 border-blue-800/50' };
-              default: return { icon: '✨', label: 'Sogno', color: 'bg-indigo-900/30 text-indigo-200 border-indigo-800/50' };
+              case 'Shadow': return { icon: '🌑', label: 'Shadow', color: 'bg-slate-800 text-slate-300 border-slate-700' };
+              case 'Intuition': return { icon: '💡', label: 'Intuition', color: 'bg-amber-900/30 text-amber-200 border-amber-800/50' };
+              case 'Emotion': return { icon: '🌊', label: 'Emotion', color: 'bg-blue-900/30 text-blue-200 border-blue-800/50' };
+              default: return { icon: '✨', label: 'Dream', color: 'bg-indigo-900/30 text-indigo-200 border-indigo-800/50' };
             }
           };
 
           const getEmotionColor = (label) => {
             const l = label.toLowerCase();
-            if (l.includes('ansia') || l.includes('paura')) return 'bg-rose-500/50 text-rose-100 border-rose-500/30';
-            if (l.includes('meraviglia') || l.includes('gioia')) return 'bg-amber-400/50 text-amber-100 border-amber-400/30';
-            if (l.includes('mistero') || l.includes('curiosità')) return 'bg-violet-500/50 text-violet-100 border-violet-500/30';
-            if (l.includes('pace') || l.includes('serenità')) return 'bg-emerald-400/50 text-emerald-100 border-emerald-400/30';
+            if (l.includes('anxiety') || l.includes('fear')) return 'bg-rose-500/50 text-rose-100 border-rose-500/30';
+            if (l.includes('wonder') || l.includes('joy')) return 'bg-amber-400/50 text-amber-100 border-amber-400/30';
+            if (l.includes('mystery') || l.includes('curiosity')) return 'bg-violet-500/50 text-violet-100 border-violet-500/30';
+            if (l.includes('peace') || l.includes('serenity')) return 'bg-emerald-400/50 text-emerald-100 border-emerald-400/30';
             return 'bg-indigo-500/50 text-indigo-100 border-indigo-500/30';
           };
 
@@ -753,7 +753,7 @@
                   React.createElement(
                     'div',
                     { className: "text-slate-200 text-xl md:text-2xl leading-relaxed italic font-light drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] min-h-[4em]" },
-                    React.createElement(BlurTypewriter, { text: "I sogni sono le stelle guida che illuminano il cammino verso la realizzazione del proprio Sè." })
+                    React.createElement(BlurTypewriter, { text: "Dreams are the guiding stars that illuminate the path towards the realization of one's Self." })
                   ),
                   React.createElement(
                     'div',
@@ -769,12 +769,12 @@
               React.createElement(
                 'label',
                 { className: "block text-slate-400 text-xs font-bold mb-6 uppercase tracking-[0.4em] text-center opacity-70" },
-                "Affida il tuo sogno alla lente"
+                "Entrust your dream to the lens"
               ),
               React.createElement(
                 'div',
                 { className: "relative group/input" },
-                React.createElement('textarea', { ref: textareaRef, value: dreamNarrative, onChange: (e) => setDreamNarrative(e.target.value), placeholder: "Ero un'aquila che sorvolava un deserto di specchi...", className: `w-full min-h-[180px] bg-slate-900/40 text-white rounded-[20px] p-8 border border-amber-400/20 focus:border-amber-400/60 focus:shadow-[0_0_30px_rgba(251,191,36,0.15)] outline-none transition-all duration-500 resize-none text-lg leading-relaxed placeholder:text-slate-500/60 backdrop-blur-xl shadow-2xl ${isDissolving ? 'dissolve-text' : ''}` }),
+                React.createElement('textarea', { ref: textareaRef, value: dreamNarrative, onChange: (e) => setDreamNarrative(e.target.value), placeholder: "I was an eagle soaring over a desert of mirrors...", className: `w-full min-h-[180px] bg-slate-900/40 text-white rounded-[20px] p-8 border border-amber-400/20 focus:border-amber-400/60 focus:shadow-[0_0_30px_rgba(251,191,36,0.15)] outline-none transition-all duration-500 resize-none text-lg leading-relaxed placeholder:text-slate-500/60 backdrop-blur-xl shadow-2xl ${isDissolving ? 'dissolve-text' : ''}` }),
                 dreamNarrative && React.createElement(
                   'button',
                   { onClick: () => setDreamNarrative(''), className: "absolute bottom-5 right-6 p-2 text-amber-200/50 hover:text-amber-300 hover:scale-110 transition-all bg-white/5 rounded-full backdrop-blur-sm border border-white/5" },
@@ -791,7 +791,7 @@
                 React.createElement(
                   'button',
                   { onClick: handleAnalyze, disabled: !dreamNarrative.trim() || isLoading, className: "group relative px-16 py-5 bg-transparent border border-indigo-400/40 hover:border-indigo-300 text-indigo-100 font-medium rounded-full transition-all active:scale-95 disabled:opacity-30 shadow-lg" },
-                  React.createElement('span', { className: "relative z-10 tracking-[0.2em] uppercase text-xs font-bold" }, "Inizia l'Analisi")
+                  React.createElement('span', { className: "relative z-10 tracking-[0.2em] uppercase text-xs font-bold" }, "Start Analysis")
                 )
               ),
               React.createElement(
@@ -800,7 +800,7 @@
                 React.createElement(
                   'h3',
                   { className: "text-center text-xs uppercase tracking-[0.5em] text-indigo-400/60 mb-8 font-bold" },
-                  "Consigli per Sognatori"
+                  "Tips for Dreamers"
                 ),
                 React.createElement(
                   'div',
@@ -809,22 +809,22 @@
                     'div',
                     { className: "glass-card p-6 rounded-2xl border-indigo-500/10" },
                     React.createElement('div', { className: "text-3xl mb-4" }, "✍️"),
-                    React.createElement('h4', { className: "text-indigo-200 font-bold mb-2 serif text-lg" }, "Scrivi subito"),
-                    React.createElement('p', { className: "text-slate-400 text-sm leading-relaxed" }, "Appunta il sogno appena ti svegli, i dettagli sfumano in pochi minuti.")
+                    React.createElement('h4', { className: "text-indigo-200 font-bold mb-2 serif text-lg" }, "Write Immediately"),
+                    React.createElement('p', { className: "text-slate-400 text-sm leading-relaxed" }, "Jot down your dream as soon as you wake up; details fade in minutes.")
                   ),
                   React.createElement(
                     'div',
                     { className: "glass-card p-6 rounded-2xl border-indigo-500/10" },
                     React.createElement('div', { className: "text-3xl mb-4" }, "🔍"),
-                    React.createElement('h4', { className: "text-indigo-200 font-bold mb-2 serif text-lg" }, "Cerca l'emozione"),
-                    React.createElement('p', { className: "text-slate-400 text-sm leading-relaxed" }, "Più che le immagini, conta come ti sentivi (eri felice, terrorizzato o curioso?).")
+                    React.createElement('h4', { className: "text-indigo-200 font-bold mb-2 serif text-lg" }, "Seek the Emotion"),
+                    React.createElement('p', { className: "text-slate-400 text-sm leading-relaxed" }, "More than images, what matters is how you felt (were you happy, terrified, or curious?).")
                   ),
                   React.createElement(
                     'div',
                     { className: "glass-card p-6 rounded-2xl border-indigo-500/10" },
                     React.createElement('div', { className: "text-3xl mb-4" }, "🧩"),
-                    React.createElement('h4', { className: "text-indigo-200 font-bold mb-2 serif text-lg" }, "Personalizza"),
-                    React.createElement('p', { className: "text-slate-400 text-sm leading-relaxed" }, "I simboli sono universali, ma il significato dipende dalla tua vita personale.")
+                    React.createElement('h4', { className: "text-indigo-200 font-bold mb-2 serif text-lg" }, "Personalize"),
+                    React.createElement('p', { className: "text-slate-400 text-sm leading-relaxed" }, "Symbols are universal, but their meaning depends on your personal life.")
                   )
                 )
               )
@@ -847,12 +847,12 @@
                     { className: "w-4 h-4 transition-transform group-hover:-translate-x-1", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
                     React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M15 19l-7-7 7-7" })
                   ),
-                  "Nuova Visione"
+                  "New Vision"
                 ),
                 React.createElement(
                   'button',
                   { onClick: () => { navigator.clipboard.writeText(analysis.summary); setCopyStatus('copied'); setTimeout(() => setCopyStatus('idle'), 2000); }, className: "px-6 py-2 bg-indigo-500/10 hover:bg-indigo-500/30 text-indigo-200 border border-indigo-500/30 rounded-full text-[10px] uppercase tracking-widest transition-all" },
-                  copyStatus === 'copied' ? "Copiato" : "Copia Analisi"
+                  copyStatus === 'copied' ? "Copied" : "Copy Analysis"
                 )
               ),
               React.createElement(
@@ -876,7 +876,7 @@
                 React.createElement(
                   'h3',
                   { className: "text-center text-xs uppercase tracking-[0.4em] text-slate-500 mb-8 font-bold" },
-                  "Clima Emotivo"
+                  "Emotional Climate"
                 ),
                 React.createElement(
                   'div',
@@ -916,7 +916,7 @@
                     React.createElement(
                       'h3',
                       { className: "text-sm uppercase tracking-[0.3em] text-slate-400 mb-6" },
-                      "L'Incontro con il Sè"
+                      "The Encounter with the Self"
                     ),
                     React.createElement('p', { className: "text-slate-300 leading-loose italic" }, analysis.deepReflection),
                     React.createElement(
@@ -936,7 +936,7 @@
                   React.createElement(
                     'h3',
                     { className: "text-xs uppercase tracking-[0.6em] text-indigo-300 font-bold mb-10 text-center" },
-                    "Dialogo con il Mentore"
+                    "Dialogue with the Mentor"
                   ),
                   React.createElement(
                     'div',
@@ -953,7 +953,7 @@
                     isChatLoading && React.createElement(
                       'div',
                       { className: "flex justify-start" },
-                      React.createElement('div', { className: "bg-slate-800/40 p-4 rounded-2xl animate-pulse text-indigo-300 text-xs uppercase tracking-widest" }, "Il mentore riflette...")
+                      React.createElement('div', { className: "bg-slate-800/40 p-4 rounded-2xl animate-pulse text-indigo-300 text-xs uppercase tracking-widest" }, "The mentor reflects...")
                     ),
                     React.createElement('div', { ref: chatEndRef })
                   ),
@@ -963,7 +963,7 @@
                     React.createElement(
                       'div',
                       { className: "flex flex-wrap gap-2 justify-center mb-4" },
-                      ['Approfondisci un simbolo', 'Collega alla mia realtà', 'Come posso agire?', 'È un messaggio positivo?'].map((chip) => React.createElement(
+                      ['Deepen a symbol', 'Connect to my reality', 'How can I act?', 'Is this a positive message?'].map((chip) => React.createElement(
                         'button',
                         { key: chip, onClick: () => handleSendMessage(chip), className: "px-4 py-1.5 rounded-full border border-indigo-500/20 bg-indigo-500/5 text-indigo-300 text-[10px] uppercase tracking-widest hover:bg-indigo-500/20 hover:border-indigo-500/40 transition-all active:scale-95" },
                         chip
@@ -977,7 +977,7 @@
                         value: chatInput,
                         onChange: (e) => setChatInput(e.target.value),
                         onKeyDown: (e) => e.key === 'Enter' && handleSendMessage(),
-                        placeholder: "Approfondisci con il mentore...",
+                        placeholder: "Delve deeper with the mentor...",
                         className: "w-full bg-slate-950/40 border border-slate-700/50 rounded-full py-4 px-8 text-white focus:border-indigo-500/50 outline-none transition-all placeholder:text-slate-600 italic"
                       }),
                       React.createElement(
@@ -999,7 +999,7 @@
                 React.createElement(
                   'button',
                   { onClick: reset, className: "px-10 py-4 bg-indigo-900/20 hover:bg-indigo-900/40 text-indigo-200 border border-indigo-500/30 rounded-full text-sm uppercase tracking-widest" },
-                  "Concludi sessione"
+                  "End Session"
                 )
               )
             );
@@ -1019,7 +1019,7 @@
                   { className: "w-4 h-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
                   React.createElement('path', { d: "M15 19l-7-7 7-7" })
                 ),
-                "Torna al Presente"
+                "Return to Present"
               )
             ),
             React.createElement(
@@ -1054,7 +1054,7 @@
                   { className: "w-4 h-4 transition-transform group-hover:-translate-x-1", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24" },
                   React.createElement('path', { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M15 19l-7-7 7-7" })
                 ),
-                "Torna alla Visione"
+                "Return to Vision"
               )
             ),
             React.createElement(
@@ -1063,28 +1063,28 @@
               React.createElement(
                 'h2',
                 { className: "text-4xl font-bold text-white mb-4 tracking-tight serif italic" },
-                "Piccolo Dizionario dei Simboli"
+                "Small Dictionary of Symbols"
               ),
               React.createElement('div', { className: "h-px w-24 bg-indigo-500/30 mx-auto" }),
               React.createElement(
                 'p',
                 { className: "mt-8 text-slate-400 italic max-w-2xl mx-auto leading-relaxed text-sm" },
-                "\"Il simbolo è sempre un'espressione di qualcosa che non può essere espresso altrimenti che mediante il simbolo stesso.\""
+                "\"A symbol is always an expression of something that cannot be expressed otherwise than by the symbol itself.\""
               )
             ),
             React.createElement(
               'div',
               { className: "grid gap-6 mb-20 md:grid-cols-2 lg:grid-cols-3" },
               [
-                { emoji: '🌊', name: 'Acqua', desc: 'Rappresenta l\'inconscio e il fluire delle emozioni. Se è calma indica pace, se agitata indica tempeste interiori.' },
-                { emoji: '🕊️', name: 'Volare', desc: 'Simboleggia il desiderio di libertà, il superamento di un ostacolo o il bisogno di trascendere la realtà.' },
-                { emoji: '扉', name: 'Porte', desc: 'Rappresentano nuove opportunità o soglie tra diversi stati di coscienza e parti di sè.' },
-                { emoji: '🌑', name: 'Ombra', desc: 'Una figura oscura spesso rappresenta aspetti del carattere che non accettiamo o che ci spaventano.' },
-                { emoji: '🧩', name: 'Labirinto', desc: 'Simbolo del viaggio interiore, della ricerca del Sè attraverso la confusione della vita.' },
-                { emoji: '🌳', name: 'Bosco', desc: 'L\'inconscio selvaggio, il luogo della prova e dell\'ignoto dove avviene la trasformazione.' },
-                { emoji: '🪞', name: 'Specchio', desc: 'Rappresenta la riflessione del Sè e la necessità di guardare onestamente alla propria verità.' },
-                { emoji: '🏔️', name: 'Montagna', desc: 'L\'ascesa verso la consapevolezza superiore e gli sforzi necessari per raggiungerla.'shade.' },
-                { emoji: '🗝️', name: 'Chiave', desc: 'Simboleggia la scoperta di un segreto o l\'accesso a una nuova risorsa interiore.' }
+                { emoji: '🌊', name: 'Water', desc: 'Represents the unconscious and the flow of emotions. Calm water indicates peace, agitated water indicates inner storms.' },
+                { emoji: '🕊️', name: 'Flying', desc: 'Symbolizes the desire for freedom, overcoming an obstacle, or the need to transcend reality.' },
+                { emoji: '🚪', name: 'Doors', desc: 'Represent new opportunities or thresholds between different states of consciousness and parts of the self.' },
+                { emoji: '🌑', name: 'Shadow', desc: 'A dark figure often represents aspects of character that we do not accept or that frighten us.' },
+                { emoji: '🧩', name: 'Labyrinth', desc: 'Symbol of the inner journey, the search for the Self through life\'s confusion.' },
+                { emoji: '🌳', name: 'Forest', desc: 'The wild unconscious, a place of trial and the unknown where transformation occurs.' },
+                { emoji: '🪞', name: 'Mirror', desc: 'Represents self-reflection and the need to honestly look at one\'s own truth.' },
+                { emoji: '🏔️', name: 'Mountain', desc: 'The ascent towards higher consciousness and the efforts required to achieve it.' },
+                { emoji: '🗝️', name: 'Key', desc: 'Symbolizes the discovery of a secret or access to a new inner resource.' }
               ].map((s, i) => React.createElement(
                 'div',
                 { key: i, className: "glass-card p-6 rounded-2xl border-l-2 border-indigo-500/40 flex items-start gap-4 transition-all hover:bg-indigo-500/5 group" },
@@ -1103,7 +1103,7 @@
               React.createElement(
                 'h3',
                 { className: "text-2xl font-bold text-white mb-4 tracking-tight serif italic" },
-                "Simbologia dei Colori"
+                "Symbolism of Colors"
               ),
               React.createElement('div', { className: "h-px w-16 bg-amber-400/30 mx-auto" })
             ),
@@ -1111,10 +1111,10 @@
               'div',
               { className: "grid gap-6 md:grid-cols-2 lg:grid-cols-4" },
               [
-                { color: '🔴', name: 'Rosso', desc: 'Passione, energia vitale, rabbia o pericolo imminente.' },
-                { color: '🔵', name: 'Blu', desc: 'Calma, spiritualità, profondità e riflessione pacata.' },
-                { color: '🟡', name: 'Giallo', desc: 'Luce, intelletto vigile e nuove intuizioni consce.' },
-                { color: '🟢', name: 'Verde', desc: 'Crescita, rigenerazione della psiche e speranza.' }
+                { color: '🔴', name: 'Red', desc: 'Passion, vital energy, anger, or imminent danger.' },
+                { color: '🔵', name: 'Blue', desc: 'Calm, spirituality, depth, and serene reflection.' },
+                { color: '🟡', name: 'Yellow', desc: 'Light, vigilant intellect, and new conscious insights.' },
+                { color: '🟢', name: 'Green', desc: 'Growth, psychic regeneration, and hope.' }
               ].map((c, i) => React.createElement(
                 'div',
                 { key: i, className: "glass-card p-6 rounded-2xl border-t-2 border-amber-400/20 flex flex-col items-center text-center gap-4 transition-all hover:bg-amber-400/5 group" },
@@ -1133,7 +1133,7 @@
               React.createElement(
                 'p',
                 { className: "text-indigo-300 italic serif text-lg leading-relaxed" },
-                "\"Usa questi simboli come bussole, ma ricorda che la vera mappa del tuo inconscio è scritta con il tuo sangue e le tue lacrime.\""
+                "\"Use these symbols as compasses, but remember that the true map of your unconscious is written with your blood and tears.\""
               )
             )
           );
@@ -1162,7 +1162,7 @@
                 React.createElement(
                   'h2',
                   { className: "text-2xl md:text-3xl font-bold text-white mb-8 serif text-center" },
-                  "Esplora Psyche Lens"
+                  "Explore Psyche Lens"
                 ),
                 React.createElement(
                   'div',
@@ -1173,9 +1173,9 @@
                     React.createElement(
                       'h3',
                       { className: "text-indigo-200 font-bold mb-4 uppercase tracking-widest text-xs" },
-                      "L'Applicazione"
+                      "The Application"
                     ),
-                    React.createElement('p', { className: "text-slate-300 text-sm md:text-base leading-relaxed italic" }, "Psyche Lens è il tuo portale verso l'Inconscio. Utilizziamo la psicologia archetipica per interpretare i sogni, identificando simboli universali e figure come l'Ombra, l'Anima e l'Animus.")
+                    React.createElement('p', { className: "text-slate-300 text-sm md:text-base leading-relaxed italic" }, "Psyche Lens is your portal to the Unconscious. We use archetypal psychology to interpret dreams, identifying universal symbols and figures like the Shadow, Anima, and Animus.")
                   ),
                   React.createElement(
                     'section',
@@ -1183,7 +1183,7 @@
                     React.createElement(
                       'h3',
                       { className: "text-amber-200 font-bold mb-4 uppercase tracking-widest text-xs" },
-                      "Chi era Carl Gustav Jung?"
+                      "Who was Carl Gustav Jung?"
                     ),
                     React.createElement(
                       'div',
@@ -1192,15 +1192,15 @@
                       React.createElement(
                         'div',
                         null,
-                        React.createElement('p', { className: "mb-3" }, React.createElement('span', { className: "text-amber-100 font-bold" }, "Carl Gustav Jung (1875-1961)"), " è stato uno psichiatra e psicoanalista svizzero, fondatore della psicologia analitica."),
-                        React.createElement('p', { className: "text-slate-300 text-sm md:text-base leading-relaxed italic" }, "A differenza di Freud, Jung credeva che i sogni non fossero solo desideri repressi, ma messaggi di un ", React.createElement('span', { className: "text-amber-100" }, "Inconscio Collettivo"), " — un magazzino ereditario di saggezza umana espresso attraverso gli ", React.createElement('span', { className: "text-amber-100 italic" }, "Archetipi"), ".")
+                        React.createElement('p', { className: "mb-3" }, React.createElement('span', { className: "text-amber-100 font-bold" }, "Carl Gustav Jung (1875-1961)"), " was a Swiss psychiatrist and psychoanalyst, founder of analytical psychology."),
+                        React.createElement('p', { className: "text-slate-300 text-sm md:text-base leading-relaxed italic" }, "Unlike Freud, Jung believed that dreams were not just repressed desires, but messages from a ", React.createElement('span', { className: "text-amber-100" }, "Collective Unconscious"), " — a hereditary storehouse of human wisdom expressed through ", React.createElement('span', { className: "text-amber-100 italic" }, "Archetypes"), ".")
                       )
                     )
                   ),
                   React.createElement(
                     'p',
                     { className: "text-center text-indigo-200/60 mt-4" },
-                    "Ogni sogno salvato è un frammento prezioso del tuo processo di individuazione."
+                    "Every saved dream is a precious fragment of your individuation process."
                   )
                 ),
                 React.createElement(
@@ -1209,7 +1209,7 @@
                   React.createElement(
                     'p',
                     { className: "text-[10px] uppercase tracking-widest text-slate-500" },
-                    "Versione 1.5 — Jungian Matrix"
+                    "Version 1.5 — Jungian Matrix"
                   )
                 )
               )
@@ -1232,17 +1232,17 @@
                 React.createElement(
                   'button',
                   { onClick: () => setView('input'), className: view === 'input' ? 'text-indigo-400' : 'text-slate-500 hover:text-white transition-colors' },
-                  "Sogno"
+                  "Dream"
                 ),
                 React.createElement(
                   'button',
                   { onClick: () => setView('dictionary'), className: view === 'dictionary' ? 'text-indigo-400' : 'text-slate-500 hover:text-white transition-colors' },
-                  "Simboli & Colori"
+                  "Symbols & Colors"
                 ),
                 React.createElement(
                   'button',
                   { onClick: () => setView('history'), className: view === 'history' ? 'text-indigo-400' : 'text-slate-500 hover:text-white transition-colors' },
-                  "Memoria"
+                  "Memory"
                 ),
                 React.createElement(
                   'div',
@@ -1252,7 +1252,7 @@
                     {
                       onClick: () => setIsMuted(!isMuted),
                       className: `w-8 h-8 rounded-full border flex items-center justify-center transition-all ${isMuted ? 'border-rose-500/30 text-rose-400 bg-rose-500/5' : 'border-slate-700 text-slate-500 hover:text-indigo-300'}`,
-                      title: isMuted ? "Attiva Audio" : "Silenzia Ambiente"
+                      title: isMuted ? "Unmute Ambient" : "Mute Ambient"
                     },
                     isMuted ? '🔇' : '🔊'
                   ),
@@ -1261,7 +1261,7 @@
                     {
                       onClick: () => setShowInfo(true),
                       className: "w-8 h-8 rounded-full border border-slate-700 flex items-center justify-center text-slate-500 hover:text-indigo-300 hover:border-indigo-400/50 transition-all font-serif italic text-lg shadow-sm",
-                      title: "Informazioni"
+                      title: "Information"
                     },
                     "i"
                   )
@@ -1290,19 +1290,19 @@
 
 
         // index.tsx logic
-       const rootElement = document.getElementById('root');
-    if (!rootElement) {
-      throw new Error("Could not find root element to mount to");
-    }
+        const rootElement = document.getElementById('root');
+        if (!rootElement) {
+          throw new Error("Could not find root element to mount to");
+        }
 
-    const root = ReactDOM.createRoot(rootElement);
-    root.render(
-      React.createElement(
-        React.StrictMode,
-        null,
-        React.createElement(App, null)
-      )
-    );
-  </script>
+        const root = ReactDOM.createRoot(rootElement);
+        root.render(
+          React.createElement(
+            React.StrictMode,
+            null,
+            React.createElement(App, null)
+          )
+        );
+    </script>
 </body>
 </html>
