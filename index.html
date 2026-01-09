@@ -97,7 +97,7 @@
             }
         }
         .letter-reveal {
-            display: inline-block;
+            display: inline-block; /* Ensure each span takes up space */
             opacity: 0;
             animation: blur-reveal 1.2s forwards;
         }
@@ -575,25 +575,28 @@
         };
 
         const BlurTypewriter = ({ text, delayOffset = 0 }) => {
-          let globalIndex = 0;
-          const words = text.split(' ');
-          return React.createElement(
-            React.Fragment,
-            null,
-            words.map((word, wordIdx) => React.createElement(
-              'span',
-              { key: wordIdx, className: "inline-block whitespace-nowrap" },
-              word.split('').map((char) => {
-                const delay = (globalIndex++ * 0.05) + delayOffset;
-                return React.createElement(
+          let globalCharIndex = 0;
+          const segments = text.match(/(\S+|\s+)/g) || []; // Split into words and sequences of spaces
+
+          const elements = [];
+          segments.forEach((segment) => {
+            segment.split('').forEach((char) => {
+              const delay = (globalCharIndex++ * 0.05) + delayOffset;
+              elements.push(
+                React.createElement(
                   'span',
-                  { key: globalIndex, className: "letter-reveal", style: { animationDelay: `${delay}s` } },
-                  char
-                );
-              }),
-              wordIdx < words.length - 1 && React.createElement('span', { className: "letter-reveal", style: { animationDelay: `${(globalIndex++ * 0.05) + delayOffset}s` } }, " ")
-            ))
-          );
+                  {
+                    key: `char-${globalCharIndex}`,
+                    className: "letter-reveal",
+                    style: { animationDelay: `${delay}s` }
+                  },
+                  char === ' ' ? '\u00A0' : char // Use non-breaking space for actual spaces
+                )
+              );
+            });
+          });
+
+          return React.createElement(React.Fragment, null, elements);
         };
 
         const StarCascade = () => {
@@ -749,14 +752,14 @@
                 React.createElement(
                   'div',
                   { className: "relative z-10 space-y-3" },
-               React.createElement(
-              'div',
-              { className: "text-slate-200 text-xl md:text-2xl leading-relaxed italic font-light whitespace-nowrap" },
-              React.createElement(BlurTypewriter, { text: "I sogni sono le stelle guida che illuminano il cammino verso la realizzazione del proprio Sé." }),
-            ),
                   React.createElement(
                     'div',
-                    { className: "text-indigo-300 text-sm md:text-base font-medium tracking-widest opacity-80 uppercase min-h-[1.5em]" },
+                    { className: "text-slate-200 text-xl md:text-2xl leading-relaxed italic font-light drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] min-h-[4em]" },
+                    React.createElement(BlurTypewriter, { text: "I sogni sono le stelle guida che illuminano il cammino verso la realizzazione del proprio Sè." })
+                  ),
+                  React.createElement(
+                    'div',
+                    { className: "text-indigo-300 text-sm md:text-base font-medium tracking-widest opacity-80 uppercase min-h-[1.5em] whitespace-nowrap" },
                     React.createElement(BlurTypewriter, { text: "— Carl Jung", delayOffset: 5 })
                   )
                 )
