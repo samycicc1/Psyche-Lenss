@@ -1,551 +1,111 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psyche Lens - Analisi dei Sogni</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "@google/generative-ai": "https://esm.run/@google/generative-ai"
+            }
+        }
+    </script>
+    <style>
+        body { margin: 0; background: #050510; color: white; overflow-x: hidden; font-family: sans-serif; }
+        .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: twinkle var(--duration) infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import ReactDOM from 'react-dom/client';
-import { GoogleGenAI, Type } from "@google/genai";
+    <script type="text/babel">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// --- TYPES ---
-export interface SymbolAnalysis { name: string; meaning: string; jungianContext: string; }
-export interface ArchetypeAnalysis { name: string; description: string; manifestationInDream: string; }
-export interface EmotionalClimate { label: string; percentage: number; }
-export type DreamCategory = 'Ombra' | 'Intuizione' | 'Emozione';
+        // CONFIGURAZIONE CHIAVE API
+        const API_KEY = "AIzaSyAtoTeJ676aX2EjEMZZ58ax2FgaBqxbMx8";
+        const genAI = new GoogleGenerativeAI(API_KEY);
 
-export interface DreamAnalysisResponse {
-  title: string; summary: string; symbols: SymbolAnalysis[]; archetypes: ArchetypeAnalysis[];
-  emotionalClimate: EmotionalClimate[]; deepReflection: string; guidingQuestion: string;
-  category: DreamCategory; practicalSynthesis: string;
-}
-
-export interface SavedDream { id: string; date: string; narrative: string; analysis: DreamAnalysisResponse; }
-export interface ChatMessage { role: 'user' | 'model'; text: string; }
-
-// --- AI SERVICE ---
-const ai = new GoogleGenAI({ apiKey:AIzaSyAtoTeJ676aX2EjEMZZ58ax2FgaBqxbMx8" });
-const ANALYSIS_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    title: { type: Type.STRING },
-    summary: { type: Type.STRING },
-    category: { type: Type.STRING, enum: ['Ombra', 'Intuizione', 'Emozione'] },
-    emotionalClimate: {
-      type: Type.ARRAY,
-      items: { type: Type.OBJECT, properties: { label: { type: Type.STRING }, percentage: { type: Type.INTEGER } }, required: ["label", "percentage"] }
-    },
-    symbols: {
-      type: Type.ARRAY,
-      items: { type: Type.OBJECT, properties: { name: { type: Type.STRING }, meaning: { type: Type.STRING }, jungianContext: { type: Type.STRING } }, required: ["name", "meaning", "jungianContext"] }
-    },
-    archetypes: {
-      type: Type.ARRAY,
-      items: { type: Type.OBJECT, properties: { name: { type: Type.STRING }, description: { type: Type.STRING }, manifestationInDream: { type: Type.STRING } }, required: ["name", "description", "manifestationInDream"] }
-    },
-    deepReflection: { type: Type.STRING },
-    guidingQuestion: { type: Type.STRING },
-    practicalSynthesis: { type: Type.STRING }
-  },
-  required: ["title", "summary", "category", "emotionalClimate", "symbols", "archetypes", "deepReflection", "guidingQuestion", "practicalSynthesis"]
-};
-
-const SYSTEM_INSTRUCTION = `Sei "Psyche Lens", un Mentore Junghiano. Il tuo tono è calmo, saggio e accessibile. Spiega termini come Archetipo e Ombra con semplicità.`;
-
-// --- SUB-COMPONENTS ---
-
-const LoadingOverlay: React.FC = () => {
-  const QUOTES = [
-    "Chi guarda fuori sogna; chi guarda dentro si sveglia.",
-    "Il sogno è la piccola porta occulta che conduce alla parte più intima e segreta dell'anima.",
-    "Fino a quando non renderai conscio l'inconscio, esso dirigerà la tua vita e tu lo chiamerai destino.",
-    "Il tuo sogno è un dipinto dell'anima che attende di essere svelato.",
-    "Nel sogno, l'anima parla un linguaggio di immagini universali.",
-    "L'incontro con se stessi è, all'inizio, l'incontro con la propria ombra."
-  ];
-
-  const [quoteIdx, setQuoteIdx] = useState(0);
-  const [fade, setFade] = useState(true);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFade(false);
-      setTimeout(() => {
-        setQuoteIdx((prev) => (prev + 1) % QUOTES.length);
-        setFade(true);
-      }, 1000);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="fixed inset-0 bg-slate-950/95 z-[200] flex flex-col items-center justify-center p-8 backdrop-blur-xl transition-all duration-1000">
-      <div className="relative w-48 h-48 mb-16 flex items-center justify-center">
-        <div className="absolute w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute w-16 h-16 bg-amber-400/5 rounded-full blur-2xl animate-ping"></div>
-        
-        <div className="absolute inset-0 animate-[spin_8s_linear_infinite]">
-          {[...Array(6)].map((_, i) => (
-            <div key={`spark1-${i}`} className="absolute w-1 h-1 bg-amber-300 rounded-full shadow-[0_0_8px_#FCD34D]" style={{ top: '50%', left: '50%', transform: `rotate(${i * 60}deg) translate(60px, 0)` }} />
-          ))}
-        </div>
-
-        <div className="absolute inset-0 animate-[spin_12s_linear_infinite_reverse]">
-          {[...Array(8)].map((_, i) => (
-            <div key={`spark2-${i}`} className="absolute w-1.5 h-1.5 bg-indigo-300 rounded-full shadow-[0_0_10px_#A5B4FC] opacity-40" style={{ top: '50%', left: '50%', transform: `rotate(${i * 45}deg) translate(85px, 0)` }} />
-          ))}
-        </div>
-
-        <div className="relative z-10 text-amber-200 opacity-80 animate-pulse">
-           <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg>
-        </div>
-      </div>
-
-      <div className={`max-w-2xl transition-all duration-1000 transform ${fade ? 'opacity-70 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-        <p className="serif text-2xl md:text-3xl text-center text-indigo-100 italic leading-relaxed font-light italic">
-          "{QUOTES[quoteIdx]}"
-        </p>
-      </div>
-
-      <div className="mt-12 flex flex-col items-center gap-2">
-        <span className="text-slate-600 text-[10px] uppercase tracking-[0.6em] animate-pulse">Esplorando l'Inconscio</span>
-        <div className="flex gap-1">
-          <div className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-          <div className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-          <div className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce"></div>
-        </div>
-      </div>
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-    </div>
-  );
-};
-
-const AmbientDrone: React.FC<{ active: boolean; muted: boolean }> = ({ active, muted }) => {
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
-  const oscillatorsRef = useRef<OscillatorNode[]>([]);
-  const timeoutRef = useRef<any | null>(null);
-
-  const startAudio = useCallback(() => {
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      gainNodeRef.current = audioCtxRef.current.createGain();
-      gainNodeRef.current.connect(audioCtxRef.current.destination);
-      gainNodeRef.current.gain.setValueAtTime(0, audioCtxRef.current.currentTime);
-    }
-    if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume();
-
-    const ctx = audioCtxRef.current;
-    const masterGain = gainNodeRef.current!;
-    const baseFreqs = [220, 329.63, 440]; 
-    baseFreqs.forEach((f) => {
-      const osc = ctx.createOscillator();
-      const filter = ctx.createBiquadFilter();
-      const amp = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(f, ctx.currentTime);
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(800, ctx.currentTime);
-      amp.gain.setValueAtTime(0.05, ctx.currentTime);
-      osc.connect(filter);
-      filter.connect(amp);
-      amp.connect(masterGain);
-      osc.start();
-      oscillatorsRef.current.push(osc);
-    });
-
-    const playChime = () => {
-      if (!active || muted || !audioCtxRef.current) return;
-      const chimeOsc = ctx.createOscillator();
-      const chimeGain = ctx.createGain();
-      const frequencies = [523.25, 659.25, 783.99, 987.77];
-      chimeOsc.frequency.setValueAtTime(frequencies[Math.floor(Math.random() * frequencies.length)], ctx.currentTime);
-      chimeGain.gain.setValueAtTime(0, ctx.currentTime);
-      chimeGain.gain.exponentialRampToValueAtTime(0.1, ctx.currentTime + 0.1);
-      chimeGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 4);
-      chimeOsc.connect(chimeGain);
-      chimeGain.connect(masterGain);
-      chimeOsc.start();
-      chimeOsc.stop(ctx.currentTime + 4);
-      timeoutRef.current = setTimeout(playChime, Math.random() * 4000 + 2000);
-    };
-    playChime();
-  }, [active, muted]);
-
-  useEffect(() => {
-    if (active && !muted) {
-      startAudio();
-      gainNodeRef.current?.gain.linearRampToValueAtTime(0.12, audioCtxRef.current!.currentTime + 2);
-    } else if (gainNodeRef.current) {
-      gainNodeRef.current.gain.linearRampToValueAtTime(0, audioCtxRef.current!.currentTime + 1.5);
-    }
-    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
-  }, [active, muted, startAudio]);
-
-  return null;
-};
-
-const BlurTypewriter: React.FC<{ text: string; delayOffset?: number }> = ({ text, delayOffset = 0 }) => {
-  let globalIndex = 0;
-  const words = text.split(' ');
-  return (
-    <>
-      {words.map((word, wordIdx) => (
-        <span key={wordIdx} className="inline-block whitespace-nowrap">
-          {word.split('').map((char) => {
-            const delay = (globalIndex++ * 0.05) + delayOffset;
-            return <span key={globalIndex} className="letter-reveal" style={{ animationDelay: `${delay}s` }}>{char}</span>;
-          })}
-          {wordIdx < words.length - 1 && <span className="letter-reveal" style={{ animationDelay: `${(globalIndex++ * 0.05) + delayOffset}s` }}>&nbsp;</span>}
-        </span>
-      ))}
-    </>
-  );
-};
-
-const SymbolCard: React.FC<{ symbol: SymbolAnalysis }> = ({ symbol }) => (
-  <div className="glass-card p-6 rounded-2xl border-l-4 border-indigo-400 shadow-lg">
-    <h4 className="text-xl font-bold mb-2 text-indigo-300">{symbol.name}</h4>
-    <p className="text-slate-300 text-sm mb-3 italic">"{symbol.meaning}"</p>
-    <p className="text-slate-400 text-xs">Jung: {symbol.jungianContext}</p>
-  </div>
-);
-
-const ArchetypeCard: React.FC<{ archetype: ArchetypeAnalysis }> = ({ archetype }) => (
-  <div className="glass-card p-6 rounded-2xl border-t-4 border-violet-500 shadow-xl pulse-glow">
-    <h4 className="text-2xl font-bold mb-2 text-violet-300">{archetype.name}</h4>
-    <p className="text-slate-400 text-sm mb-4 leading-relaxed">{archetype.description}</p>
-    <p className="text-indigo-200 text-sm italic">Presenza: {archetype.manifestationInDream}</p>
-  </div>
-);
-
-// --- MAIN APPLICATION ---
-
-const App: React.FC = () => {
-  const [dreamNarrative, setDreamNarrative] = useState('');
-  const [analysis, setAnalysis] = useState<DreamAnalysisResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [history, setHistory] = useState<SavedDream[]>([]);
-  const [view, setView] = useState<'input' | 'result' | 'history' | 'dictionary'>('input');
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [chatInput, setChatInput] = useState('');
-  const [isChatLoading, setIsChatLoading] = useState(false);
-  const [lastAnalysisId, setLastAnalysisId] = useState<string | null>(null);
-  const [isMuted, setIsMuted] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
-  
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Persistence
-  useEffect(() => {
-    const stored = localStorage.getItem('psyche_lens_history');
-    if (stored) try { setHistory(JSON.parse(stored)); } catch (e) { console.error(e); }
-  }, []);
-
-  const saveToHistory = (newAnalysis: DreamAnalysisResponse, narrative: string) => {
-    const entry: SavedDream = {
-      id: Date.now().toString(),
-      date: new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' }),
-      narrative,
-      analysis: newAnalysis
-    };
-    setHistory(prev => {
-      const updated = [entry, ...prev];
-      localStorage.setItem('psyche_lens_history', JSON.stringify(updated));
-      return updated;
-    });
-  };
-
-  // SCROLL LOGIC
-  useEffect(() => {
-    if (view === 'result' && analysis && analysis.title !== lastAnalysisId) {
-      const timer = setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        setLastAnalysisId(analysis.title);
-      }, 200);
-      return () => clearTimeout(timer);
-    }
-  }, [view, analysis, lastAnalysisId]);
-
-  useEffect(() => {
-    if (chatMessages.length > 1) {
-      const timer = setTimeout(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [chatMessages]);
-
-  const handleAnalyze = async () => {
-    if (!dreamNarrative.trim()) return;
-    setIsLoading(true);
-    try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
-        contents: `Analizza questo sogno: "${dreamNarrative}"`,
-        config: { systemInstruction: SYSTEM_INSTRUCTION, responseMimeType: "application/json", responseSchema: ANALYSIS_SCHEMA },
-      });
-      const resData = JSON.parse(response.text || "{}") as DreamAnalysisResponse;
-      setAnalysis(resData);
-      setChatMessages([{ role: 'model', text: `Benvenuto. Ho analizzato la tua visione. Considera questa domanda per iniziare il nostro dialogo: "${resData.guidingQuestion}"` }]);
-      saveToHistory(resData, dreamNarrative);
-      setView('result');
-    } catch (e) { console.error(e); } finally { setIsLoading(false); }
-  };
-
-  const handleChat = async (preset?: string) => {
-    const text = preset || chatInput;
-    if (!text.trim() || !analysis || isChatLoading) return;
-    const userMsg: ChatMessage = { role: 'user', text };
-    setChatMessages(prev => [...prev, userMsg]);
-    setChatInput('');
-    setIsChatLoading(true);
-    try {
-      const chat = ai.chats.create({
-        model: 'gemini-3-flash-preview',
-        config: { systemInstruction: `${SYSTEM_INSTRUCTION} Sogno: "${dreamNarrative}". Analisi: ${JSON.stringify(analysis)}.` },
-        history: chatMessages.map(m => ({ role: m.role, parts: [{ text: m.text }] }))
-      });
-      const result = await chat.sendMessage({ message: text });
-      setChatMessages(prev => [...prev, { role: 'model', text: result.text || "L'inconscio tace..." }]);
-    } catch (e) { console.error(e); } finally { setIsChatLoading(false); }
-  };
-
-  return (
-    <div className="min-h-screen relative z-10 overflow-x-hidden">
-      {isLoading && <LoadingOverlay />}
-      <AmbientDrone active={view === 'result'} muted={isMuted} />
-      
-      {showInfo && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md" onClick={() => setShowInfo(false)}>
-          <div className="glass-card p-10 md:p-12 rounded-3xl max-w-2xl relative overflow-y-auto max-h-[90vh]" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowInfo(false)} className="absolute top-4 right-4 p-2 text-slate-500 hover:text-white transition-colors">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-            <h2 className="text-3xl font-bold text-white mb-8 serif text-center">Esplora Psyche Lens</h2>
-            <div className="space-y-6 text-slate-300 text-sm md:text-base leading-relaxed italic">
-              <section className="bg-indigo-500/5 p-6 rounded-2xl border border-indigo-500/10">
-                <h3 className="text-indigo-200 font-bold mb-4 uppercase tracking-widest text-xs">L'Applicazione</h3>
-                <p>Psyche Lens è il tuo portale verso l'Inconscio. Utilizziamo la psicologia archetipica per interpretare i sogni, identificando simboli universali e figure come l'Ombra, l'Anima e l'Animus.</p>
-              </section>
-              <section className="bg-slate-900/50 p-6 rounded-2xl border border-slate-700/50">
-                <h3 className="text-amber-200 font-bold mb-4 uppercase tracking-widest text-xs">Chi era Carl Gustav Jung?</h3>
-                <div className="flex flex-col md:flex-row gap-6 items-center">
-                   <div className="w-24 h-24 rounded-full bg-slate-800 border-2 border-amber-400/20 flex items-center justify-center text-4xl shrink-0 grayscale">🧔🏻‍♂️</div>
-                   <div>
-                     <p>Psichiatra e psicoanalista svizzero (1875-1961), fondatore della psicologia analitica.</p>
-                   </div>
+        const StarBackground = () => {
+            const stars = Array.from({ length: 150 }).map((_, i) => ({
+                id: i,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                size: `${Math.random() * 3}px`,
+                duration: `${2 + Math.random() * 4}s`
+            }));
+            return (
+                <div className="stars-container">
+                    {stars.map(star => (
+                        <div key={star.id} className="star" style={{
+                            top: star.top, left: star.left, width: star.size, height: star.size,
+                            '--duration': star.duration
+                        }} />
+                    ))}
                 </div>
-              </section>
-            </div>
-          </div>
-        </div>
-      )}
+            );
+        };
 
-      <nav className="p-8 flex justify-between items-center max-w-7xl mx-auto">
-        <div onClick={() => { setView('input'); setAnalysis(null); setLastAnalysisId(null); }} className="cursor-pointer group">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="#FACC15" className="filter drop-shadow-[0_0_8px_rgba(250,204,21,0.4)] group-hover:scale-110 transition-all">
-            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-          </svg>
-        </div>
-        <div className="flex items-center gap-4 md:gap-8 text-[10px] uppercase tracking-widest font-bold text-slate-500">
-           <button onClick={() => setView('input')} className={view === 'input' ? 'text-indigo-400' : 'hover:text-white transition-colors'}>Sogno</button>
-           <button onClick={() => setView('dictionary')} className={view === 'dictionary' ? 'text-indigo-400' : 'hover:text-white transition-colors'}>Simboli & Colori</button>
-           <button onClick={() => setView('history')} className={view === 'history' ? 'text-indigo-400' : 'hover:text-white transition-colors'}>Memoria</button>
-           <div className="flex items-center gap-2">
-             <button onClick={() => setIsMuted(!isMuted)} className="w-8 h-8 rounded-full border border-slate-700 flex items-center justify-center text-slate-500 hover:text-indigo-300">
-               {isMuted ? '🔇' : '🔊'}
-             </button>
-             <button onClick={() => setShowInfo(true)} className="w-8 h-8 rounded-full border border-slate-700 flex items-center justify-center text-slate-500 hover:text-indigo-300 font-serif italic text-lg shadow-sm">
-               i
-             </button>
-           </div>
-        </div>
-      </nav>
+        const App = () => {
+            const [dream, setDream] = React.useState("");
+            const [result, setResult] = React.useState(null);
+            const [loading, setLoading] = React.useState(false);
 
-      <main className="max-w-5xl mx-auto px-4 py-12">
-        {view === 'input' && (
-          <div className="animate-fadeIn text-center">
-            <h2 className="text-6xl md:text-8xl font-bold mb-10 tracking-tight italic relative inline-block px-4 title-enhanced">Psyche Lens</h2>
-            
-            <div className="relative max-w-2xl mx-auto py-8 mb-12">
-              <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
-                <div className="w-full h-full bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-indigo-600/10 blur-[80px] rounded-full animate-aurora opacity-40"></div>
-              </div>
-              <div className="relative z-10 space-y-4">
-                <div className="text-slate-200 text-xl md:text-3xl leading-relaxed italic font-light min-h-[4em]">
-                  <BlurTypewriter text="I sogni sono le stelle guida che illuminano il cammino verso la realizzazione del proprio Sè." />
-                </div>
-                <div className="text-indigo-300 text-sm md:text-base font-medium tracking-widest uppercase opacity-80 min-h-[1.5em]">
-                  <BlurTypewriter text="— Carl Jung" delayOffset={5} />
-                </div>
-              </div>
-            </div>
+            const analyzeDream = async () => {
+                if (!dream) return;
+                setLoading(true);
+                try {
+                    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                    const prompt = `Analizza questo sogno dal punto di vista junghiano: ${dream}. Fornisci un titolo, un riassunto e i simboli principali.`;
+                    const res = await model.generateContent(prompt);
+                    setResult(res.response.text());
+                } catch (error) {
+                    setResult("Errore durante l'analisi. Controlla la chiave API o la connessione.");
+                }
+                setLoading(false);
+            };
 
-            <div className="max-w-3xl mx-auto mb-20">
-              <label className="block text-slate-400 text-xs font-bold mb-6 uppercase tracking-[0.4em] text-center opacity-70">Affida il tuo sogno alla lente</label>
-              <textarea 
-                ref={textareaRef}
-                value={dreamNarrative} onChange={e => setDreamNarrative(e.target.value)}
-                placeholder="Ero un'aquila che sorvolava un deserto di specchi..."
-                className="w-full min-h-[220px] bg-slate-900/40 text-white rounded-3xl p-8 border border-white/10 outline-none focus:border-indigo-500/50 transition-all text-lg leading-relaxed shadow-2xl backdrop-blur-md placeholder:text-slate-600"
-              />
-              <button 
-                onClick={handleAnalyze} 
-                disabled={!dreamNarrative.trim() || isLoading} 
-                className="mt-12 px-16 py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full font-bold uppercase tracking-[0.2em] text-xs transition-all active:scale-95 disabled:opacity-20 shadow-xl"
-              >
-                Inizia l'Analisi
-              </button>
-            </div>
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-center p-4">
+                    <StarBackground />
+                    <div className="glass p-8 rounded-2xl w-full max-w-2xl text-center">
+                        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-yellow-200 bg-clip-text text-transparent">Psyche Lens</h1>
+                        <p className="mb-8 opacity-80 italic">"I sogni sono le stelle guida..."</p>
+                        
+                        <textarea 
+                            className="w-full h-32 bg-black/30 border border-white/20 rounded-xl p-4 mb-4 focus:outline-none focus:border-purple-500 transition-all"
+                            placeholder="Descrivi il tuo sogno qui..."
+                            value={dream}
+                            onChange={(e) => setDream(e.target.value)}
+                        />
+                        
+                        <button 
+                            onClick={analyzeDream}
+                            disabled={loading}
+                            className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl font-bold hover:opacity-90 transition-all disabled:opacity-50"
+                        >
+                            {loading ? "Analizzando..." : "AFFIDA IL TUO SOGNO ALLA LENTE"}
+                        </button>
 
-            <section className="mb-12">
-              <h3 className="text-center text-xs uppercase tracking-[0.5em] text-indigo-400/60 mb-8 font-bold">Consigli per Sognatori</h3>
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="glass-card p-6 rounded-2xl border-indigo-500/10">
-                  <div className="text-3xl mb-4 text-center">✍️</div>
-                  <h4 className="text-indigo-200 font-bold mb-2 serif text-lg">Scrivi subito</h4>
-                  <p className="text-slate-400 text-sm leading-relaxed text-center">Appunta il sogno appena ti svegli, i dettagli sfumano in pochi minuti.</p>
-                </div>
-                <div className="glass-card p-6 rounded-2xl border-indigo-500/10">
-                  <div className="text-3xl mb-4 text-center">🔍</div>
-                  <h4 className="text-indigo-200 font-bold mb-2 serif text-lg">Cerca l'emozione</h4>
-                  <p className="text-slate-400 text-sm leading-relaxed text-center">Più che le immagini, conta come ti sentivi (eri felice, terrorizzato o curioso?).</p>
-                </div>
-                <div className="glass-card p-6 rounded-2xl border-indigo-500/10">
-                  <div className="text-3xl mb-4 text-center">🧩</div>
-                  <h4 className="text-indigo-200 font-bold mb-2 serif text-lg">Personalizza</h4>
-                  <p className="text-slate-400 text-sm leading-relaxed text-center">I simboli sono universali, ma il significato dipende dalla tua vita personale.</p>
-                </div>
-              </div>
-            </section>
-          </div>
-        )}
-
-        {view === 'result' && analysis && (
-          <div className="animate-fadeIn pb-32">
-            <header id="analysis-result-header" className="text-center mb-20 scroll-mt-20">
-              <div className="flex justify-center mb-6">
-                <span className="px-4 py-1.5 bg-indigo-500/10 text-indigo-300 rounded-full text-[10px] uppercase tracking-[0.3em] font-bold border border-indigo-500/20">{analysis.category}</span>
-              </div>
-              <h2 className="text-4xl md:text-6xl font-bold mb-6 italic text-indigo-100">{analysis.title}</h2>
-              <p className="text-xl md:text-2xl text-slate-400 italic leading-relaxed max-w-3xl mx-auto font-light">{analysis.summary}</p>
-            </header>
-
-            <div className="grid lg:grid-cols-3 gap-12 mb-20">
-              <div className="lg:col-span-2 space-y-8">
-                <div className="grid md:grid-cols-2 gap-6">{analysis.symbols.map((s, i) => <SymbolCard key={i} symbol={s} />)}</div>
-                <div className="grid gap-6">{analysis.archetypes.map((a, i) => <ArchetypeCard key={i} archetype={a} />)}</div>
-              </div>
-              <aside>
-                <div className="glass-card p-8 rounded-3xl sticky top-8 border-indigo-500/10">
-                   <h3 className="text-xs uppercase tracking-[0.3em] text-slate-500 mb-6 font-bold">Incontro con il Sè</h3>
-                   <p className="text-slate-200 leading-loose italic mb-8">{analysis.deepReflection}</p>
-                   <div className="pt-6 border-t border-white/5">
-                      <p className="text-amber-300 serif italic text-lg leading-relaxed">"{analysis.guidingQuestion}"</p>
-                   </div>
-                </div>
-              </aside>
-            </div>
-
-            <section id="chat-conversation" className="max-w-4xl mx-auto bg-slate-900/40 border border-white/5 rounded-[2.5rem] p-8 md:p-12 shadow-2xl backdrop-blur-xl">
-              <h3 className="text-xs uppercase tracking-[0.6em] text-indigo-300 font-bold mb-10 text-center">Dialogo con il Mentore</h3>
-              <div className="space-y-6 mb-10 max-h-[500px] overflow-y-auto px-4 custom-scrollbar">
-                {chatMessages.map((m, i) => (
-                  <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] p-5 rounded-2xl ${m.role === 'user' ? 'bg-indigo-600/20 border border-indigo-500/30 text-indigo-50' : 'bg-slate-800/60 border border-slate-700/50 text-slate-200'} italic text-sm md:text-base leading-relaxed`}>
-                      {m.text}
+                        {result && (
+                            <div className="mt-8 text-left p-4 bg-white/5 rounded-xl border border-white/10 whitespace-pre-wrap">
+                                {result}
+                            </div>
+                        )}
                     </div>
-                  </div>
-                ))}
-                {isChatLoading && <div className="text-xs text-indigo-400 animate-pulse tracking-widest uppercase">Il mentore riflette...</div>}
-                <div ref={chatEndRef} />
-              </div>
-              <div className="space-y-6">
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {['Approfondisci un simbolo', 'Collega alla realtà', 'Cosa posso fare?', 'È un buon segno?'].map(chip => (
-                    <button key={chip} onClick={() => handleChat(chip)} className="px-4 py-1.5 rounded-full border border-indigo-500/20 bg-indigo-500/5 text-indigo-300 text-[10px] uppercase tracking-widest hover:bg-indigo-500/20 transition-all">
-                      {chip}
-                    </button>
-                  ))}
                 </div>
-                <div className="relative group">
-                  <input 
-                    value={chatInput} 
-                    onChange={e => setChatInput(e.target.value)} 
-                    onKeyDown={e => e.key === 'Enter' && handleChat()} 
-                    placeholder="Approfondisci con il mentore..." 
-                    className="w-full bg-slate-950/40 border border-slate-700/50 rounded-full py-4 px-8 text-white focus:border-indigo-500/50 outline-none transition-all italic" 
-                  />
-                  <button onClick={() => handleChat()} className="absolute right-2 top-2 bottom-2 px-6 bg-indigo-600 rounded-full text-white text-xs font-bold uppercase hover:bg-indigo-500 transition-all">Invia</button>
-                </div>
-              </div>
-            </section>
-          </div>
-        )}
+            );
+        };
 
-        {view === 'history' && (
-          <div className="max-w-5xl mx-auto py-12 px-4 animate-fadeIn">
-            <h2 className="text-4xl font-bold text-white mb-16 italic text-center">Memorie del Sognatore</h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              {history.length > 0 ? history.map((item) => (
-                <div key={item.id} onClick={() => { setAnalysis(item.analysis); setView('result'); setDreamNarrative(item.narrative); }} className="glass-card p-8 rounded-[2.5rem] hover:border-indigo-500/50 cursor-pointer transition-all flex flex-col h-full group">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-widest mb-6">{item.date}</span>
-                  <h3 className="text-2xl font-bold text-white mb-4 italic leading-snug group-hover:text-indigo-200 transition-colors">{item.analysis.title}</h3>
-                  <p className="text-slate-400 line-clamp-3 italic mb-8 flex-grow">"{item.narrative}"</p>
-                </div>
-              )) : (
-                <div className="col-span-full py-20 text-center text-slate-500 italic uppercase tracking-[0.3em]">Nessuna memoria ancora custodita</div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {view === 'dictionary' && (
-          <div className="animate-fadeIn py-12">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-white mb-4 italic">Dizionario dei Simboli</h2>
-              <div className="h-px w-24 bg-indigo-500/30 mx-auto"></div>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-24">
-              {[
-                { n: '🌊 Acqua', d: 'L\'inconscio e le emozioni. Calma indica pace, agitata tempeste interiori.' },
-                { n: '🕊️ Volare', d: 'Desiderio di libertà, superamento di ostacoli o trascendenza della realtà.' },
-                { n: '扉 Porte', d: 'Soglie tra diversi stati di coscienza e nuove opportunità.' },
-                { n: '🌑 Ombra', d: 'Aspetti del carattere non accettati o che ci spaventano.' },
-                { n: '🧩 Labirinto', d: 'Simbolo del viaggio interiore e della ricerca del Sè.' },
-                { n: '🌳 Bosco', d: 'L\'inconscio selvaggio, luogo della prova e dell\'ignoto.' }
-              ].map(s => (
-                <div key={s.n} className="glass-card p-8 rounded-2xl border-l-2 border-indigo-500/40 transition-all hover:bg-indigo-500/5 group">
-                  <h4 className="text-lg font-bold text-indigo-200 mb-2 serif uppercase tracking-wider">{s.n}</h4>
-                  <p className="text-slate-400 leading-relaxed text-sm italic">{s.d}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="text-center mb-16">
-              <h3 className="text-3xl font-bold text-white mb-4 italic">Simbologia dei Colori</h3>
-              <div className="h-px w-16 bg-amber-400/30 mx-auto"></div>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {[
-                { c: '🔴 Rosso', d: 'Passione, energia, rabbia o pericolo.' },
-                { c: '🔵 Blu', d: 'Calma, spiritualità, profondità.' },
-                { c: '🟡 Giallo', d: 'Luce, intelletto, intuizione.' },
-                { c: '🟢 Verde', d: 'Crescita, rigenerazione, speranza.' }
-              ].map(c => (
-                <div key={c.c} className="glass-card p-6 rounded-2xl border-t-2 border-amber-400/20 text-center">
-                  <h4 className="text-lg font-bold text-amber-100 mb-2 uppercase tracking-widest">{c.c}</h4>
-                  <p className="text-slate-400 text-xs italic">{c.d}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </main>
-
-      <footer className="py-20 text-center text-slate-700 text-[10px] uppercase tracking-[0.5em]">
-        © {new Date().getFullYear()} Psyche Lens — Archetypal Dream Matrix
-      </footer>
-    </div>
-  );
-};
-
-const root = ReactDOM.createRoot(document.getElementById('root')!);
-root.render(<App />);
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
