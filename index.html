@@ -1,31 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Psyche Lens - Archetypal Dream Analysis</title>
+    <title>Psyche Lens - Analisi dei Sogni</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://esm.sh/react@18.2.0"></script>
+    <script src="https://esm.sh/react-dom@18.2.0/client"></script>
+    <script src="https://esm.sh/@google/genai@1.34.0?bundle"></script>
+
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f1f5f9; margin: 0; overflow-x: hidden; }
-        .dream-gradient { background: radial-gradient(circle at 50% 50%, #1e1b4b, #0f172a, #020617); background-attachment: fixed; }
-        .glass-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        body { background-color: #0f172a; color: #f1f5f9; margin: 0; overflow-x: hidden; font-family: sans-serif; }
+        .dream-gradient { background: radial-gradient(circle at 50% 50%, #1e1b4b, #0f172a, #020617); min-height: 100vh; }
+        .glass-card { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: twinkle var(--duration) infinite ease-in-out; }
         @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
     </style>
-    <script src="https://esm.sh/react@18.2.0"></script>
-    <script src="https://esm.sh/react-dom@18.2.0/client"></script>
-    <script src="https://esm.sh/@google/genai@1.34.0?bundle"></script>
 </head>
-<body class="dream-gradient min-h-screen">
+<body class="dream-gradient">
     <div class="stars-container" id="stars-root"></div>
     <div id="root"></div>
 
     <script>
-        // Generatore di stelle
+        // Effetto stelle sullo sfondo
         const starsRoot = document.getElementById('stars-root');
-        for (let i = 0; i < 150; i++) {
+        for (let i = 0; i < 100; i++) {
             const star = document.createElement('div');
             star.className = 'star';
             star.style.width = star.style.height = `${Math.random() * 2 + 1}px`;
@@ -35,11 +37,10 @@
             starsRoot.appendChild(star);
         }
 
-        const { useState, useEffect } = React;
+        const { useState } = React;
 
-        // --- CONFIGURAZIONE GEMINI ---
+        // Configurazione della Chiave API
         const API_KEY = 'AIzaSyAtoTeJ676aX2EjEMZZ58ax2FgaBqxbMx8';
-        // Usiamo il riferimento globale corretto della libreria caricata tramite bundle
         const genAI = new window.GoogleGenAI.GoogleGenerativeAI(API_KEY);
 
         const App = () => {
@@ -47,51 +48,53 @@
             const [result, setResult] = useState(null);
             const [loading, setLoading] = useState(false);
 
-            const analyze = async () => {
+            const analyzeDream = async () => {
                 if (!text.trim()) return;
                 setLoading(true);
                 try {
                     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                    const prompt = "Analizza questo sogno in modo poetico e psicologico (in italiano): " + text;
+                    const prompt = "Sei un analista esperto di sogni. Analizza questo sogno in italiano, evidenziando i simboli principali e il significato psicologico: " + text;
                     const res = await model.generateContent(prompt);
                     setResult(res.response.text());
-                } catch (e) {
-                    console.error(e);
-                    alert("Errore di connessione con l'inconscio.");
+                } catch (error) {
+                    console.error(error);
+                    alert("Si è verificato un errore durante l'analisi.");
                 } finally {
                     setLoading(false);
                 }
             };
 
             return React.createElement('div', { className: "relative z-10 max-w-2xl mx-auto p-6 pt-20" },
-                React.createElement('h1', { className: "text-4xl font-bold mb-2 text-indigo-300 text-center", style: { fontFamily: 'Libre Baskerville' } }, "Psyche Lens"),
-                React.createElement('p', { className: "text-center text-slate-400 mb-10 tracking-widest text-xs uppercase" }, "Analisi Archetipale dei Sogni"),
+                React.createElement('h1', { 
+                    className: "text-4xl font-bold mb-2 text-indigo-300 text-center",
+                    style: { fontFamily: 'Libre Baskerville' } 
+                }, "Psyche Lens"),
+                React.createElement('p', { className: "text-center text-slate-400 mb-10 text-xs uppercase tracking-widest" }, "Archetypal Dream Analysis"),
                 
-                !result ? React.createElement('div', { className: "glass-card p-6 rounded-3xl shadow-2xl" },
+                !result ? React.createElement('div', { className: "glass-card p-6 rounded-3xl" },
                     React.createElement('textarea', {
-                        className: "w-full h-48 bg-transparent text-white focus:outline-none resize-none placeholder:text-slate-600 text-lg",
-                        placeholder: "Cosa hai sognato stanotte?",
+                        className: "w-full h-44 bg-transparent text-white focus:outline-none resize-none placeholder:text-slate-600 text-lg",
+                        placeholder: "Descrivi il tuo sogno qui...",
                         value: text,
                         onChange: (e) => setText(e.target.value)
                     }),
                     React.createElement('button', {
                         className: "w-full mt-4 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold transition-all disabled:opacity-50",
-                        onClick: analyze,
+                        onClick: analyzeDream,
                         disabled: loading
-                    }, loading ? "Esplorando l'abisso..." : "Analizza Visione")
-                ) : React.createElement('div', { className: "glass-card p-8 rounded-3xl animate-fadeIn" },
-                    React.createElement('div', { className: "text-slate-200 leading-relaxed italic mb-6 whitespace-pre-wrap" }, result),
+                    }, loading ? "Analisi in corso..." : "Interpreta Sogno")
+                ) : React.createElement('div', { className: "glass-card p-8 rounded-3xl" },
+                    React.createElement('div', { className: "text-slate-200 leading-relaxed whitespace-pre-wrap" }, result),
                     React.createElement('button', {
-                        className: "text-indigo-400 font-bold hover:text-indigo-300",
+                        className: "mt-6 text-indigo-400 font-bold hover:text-indigo-300",
                         onClick: () => { setResult(null); setText(''); }
-                    }, "← Torna a sognare")
+                    }, "← Analizza un altro sogno")
                 )
             );
         };
 
-        // MONTAGGIO APP
-        const rootElement = document.getElementById('root');
-        const root = ReactDOM.createRoot(rootElement);
+        // Montaggio dell'App nel div #root
+        const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(React.createElement(App));
     </script>
 </body>
