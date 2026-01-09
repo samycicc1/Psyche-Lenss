@@ -239,6 +239,7 @@
 
         // services/geminiService.ts - Logic moved here
         const API_KEY = 'AIzaSyAtoTeJ676aX2EjEMZZ58ax2FgaBqxbMx8'; // Provided API Key
+        // CORRECTED: Initialize Gemini client adhering to @google/genai guidelines
         const ai = new GoogleGenAIClient({ apiKey: API_KEY });
 
         const ANALYSIS_SCHEMA = {
@@ -639,7 +640,7 @@
           useEffect(() => {
             const stored = localStorage.getItem('psyche_lens_history');
             if (stored) {
-              try { setHistory(JSON.parse(stored)); } catch (e) { console.error("History load error", e); }
+              try { setHistory(JSON.parse(stored)); } catch (e) { console.error("History load error:", e); }
             }
           }, []);
 
@@ -678,7 +679,7 @@
               saveToHistory(result, dreamNarrative);
               setView('result');
             } catch (err) {
-              console.error(err);
+              console.error("Analysis error:", err);
               // Fallback for analysis error
               setAnalysis({
                 title: "Whispers from the Void",
@@ -1305,18 +1306,13 @@
 
         // index.tsx logic - entry point for React app
         const rootElement = document.getElementById('root');
-        if (!rootElement) {
-          throw new Error("Could not find root element to mount to");
-        }
 
-        const root = ReactDOM.createRoot(rootElement);
-        root.render(
-          React.createElement(
-            React.StrictMode,
-            null,
-            React.createElement(App, null)
-          )
-        );
+        if (rootElement) {
+            const root = ReactDOM.createRoot(rootElement);
+            root.render(React.createElement(App, null));
+        } else {
+            console.error("Error: 'root' element not found in DOM.");
+        }
     </script>
 </body>
 </html>
