@@ -185,15 +185,11 @@
           background-color: rgba(129, 140, 248, 0.5);
         }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.2.0?pin=v135",
-    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client?pin=v135",
-    "@google/genai": "https://esm.sh/@google/genai@1.34.0?pin=v135"
-  }
-}
-</script>
+    <!-- Load React and ReactDOM from ESM.sh as global variables -->
+    <script src="https://esm.sh/react@18.2.0?pin=v135"></script>
+    <script src="https://esm.sh/react-dom@18.2.0/client?pin=v135"></script>
+    <!-- Load Google Generative AI from ESM.sh as a global bundle -->
+    <script src="https://esm.sh/@google/genai@1.34.0?bundle"></script>
 </head>
 <body class="dream-gradient min-h-screen">
     <!-- Background Stars -->
@@ -234,14 +230,16 @@
 
     <div id="root"></div>
 
-    <script type="module">
-        import React, { useState, useEffect, useCallback, useRef } from 'react';
-        import ReactDOM from 'react-dom/client';
-        import { GoogleGenAI, Type } from "@google/genai";
+    <script>
+        // Destructure React hooks from the global React object
+        const { useState, useEffect, useCallback, useRef } = React;
+        // Access GoogleGenAI and Type from the global window.GoogleGenAI object
+        const GoogleGenAIClient = window.GoogleGenAI;
+        const Type = window.GoogleGenAI.Type;
 
         // services/geminiService.ts
         const API_KEY = 'AIzaSyAtoTeJ676aX2EjEMZZ58ax2FgaBqxbMx8'; // Provided API Key
-        const ai = new GoogleGenAI({ apiKey: API_KEY });
+        const ai = new GoogleGenAIClient({ apiKey: API_KEY });
 
         const ANALYSIS_SCHEMA = {
           type: Type.OBJECT,
@@ -1085,7 +1083,7 @@
                 { emoji: '🧩', name: 'Labirinto', desc: 'Simbolo del viaggio interiore, della ricerca del Sè attraverso la confusione della vita.' },
                 { emoji: '🌳', name: 'Bosco', desc: 'L\'inconscio selvaggio, il luogo della prova e dell\'ignoto dove avviene la trasformazione.' },
                 { emoji: '🪞', name: 'Specchio', desc: 'Rappresenta la riflessione del Sè e la necessità di guardare onestamente alla propria verità.' },
-                { emoji: '🏔️', name: 'Montagna', desc: 'L\'ascesa verso la consapevolezza superiore e gli sforzi necessari per raggiungerla.' },
+                { emoji: '🏔️', name: 'Montagna', desc: 'L\'ascesa verso la consapevolezza superiore e gli sforzi necessari per raggiungerla.'shade.' },
                 { emoji: '🗝️', name: 'Chiave', desc: 'Simboleggia la scoperta di un segreto o l\'accesso a una nuova risorsa interiore.' }
               ].map((s, i) => React.createElement(
                 'div',
