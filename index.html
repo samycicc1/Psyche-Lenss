@@ -3,132 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Psyche Lens - Archetypal Analysis</title>
+    <title>Psyche Lens</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai@0.1.0/dist/index.umd.js"></script>
 
     <style>
-        body { background-color: #020617; color: #f1f5f9; margin: 0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .dream-gradient { background: radial-gradient(circle at 50% 50%, #1e1b4b, #0f172a, #020617); min-height: 100vh; }
-        .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: twinkle var(--duration) infinite ease-in-out; }
-        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
-        .progress-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.05); }
+        body { background: #020617; color: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; }
+        .dream-bg { background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 50%, #020617 100%); min-height: 100vh; position: relative; }
+        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .star { position: absolute; background: white; border-radius: 50%; animation: blink var(--d) infinite; }
+        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        /* Stile barre originali */
+        .bar-bg { height: 8px; border-radius: 10px; background: rgba(255,255,255,0.05); }
+        .bar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #6366f1, #a855f7); }
     </style>
 </head>
-<body class="dream-gradient">
-    <div class="stars-container" id="stars-root"></div>
-    <div id="root"></div>
+<body>
+    <div class="dream-bg">
+        <div class="stars" id="starfield"></div>
+        <div id="root"></div>
+    </div>
 
     <script>
-        // Generatore di stelle
-        const starsRoot = document.getElementById('stars-root');
-        for (let i = 0; i < 150; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.width = star.style.height = `${Math.random() * 2 + 0.5}px`;
-            star.style.left = `${Math.random() * 100}%`;
-            star.style.top = `${Math.random() * 100}%`;
-            star.style.setProperty('--duration', `${Math.random() * 4 + 2}s`);
-            starsRoot.appendChild(star);
+        // Ricostruzione stelle
+        const field = document.getElementById('starfield');
+        for(let i=0; i<150; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            s.style.width = s.style.height = Math.random()*2+'px';
+            s.style.left = Math.random()*100+'%';
+            s.style.top = Math.random()*100+'%';
+            s.style.setProperty('--d', Math.random()*3+2+'s');
+            field.appendChild(s);
         }
 
         const { useState } = React;
         const API_KEY = 'AIzaSyAtoTeJ676aX2EjEMZZ58ax2FgaBqxbMx8'; //
 
         const App = () => {
-            const [text, setText] = useState('');
-            const [result, setResult] = useState(null);
+            const [input, setInput] = useState('');
+            const [data, setData] = useState(null);
             const [loading, setLoading] = useState(false);
 
             const analyze = async () => {
-                if (!text.trim()) return;
+                if(!input.trim()) return;
                 setLoading(true);
                 try {
                     const genAI = new window.GoogleGenerativeAI.GoogleGenerativeAI(API_KEY);
                     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                    
-                    // Prompt strutturato secondo il tuo schema originale
-                    const prompt = `Analizza questo sogno e rispondi in italiano usando questo formato JSON:
+                    // Schema identico alla tua immagine originale
+                    const prompt = `Analizza il sogno e rispondi SOLO in JSON:
                     {
-                        "title": "Titolo evocativo",
-                        "summary": "Breve frase di sintesi",
-                        "category": "Shadow" o "Intuition" o "Emotion",
-                        "climatE": [{"label": "Emozione", "percentage": 85}],
-                        "symbols": ["Simbolo 1", "Simbolo 2"],
-                        "interpretation": "Analisi profonda",
-                        "suggestions": "Suggerimenti pratici"
+                      "title": "Titolo",
+                      "phrase": "Frase di sintesi",
+                      "category": "Shadow",
+                      "emotions": [{"label": "Anxiety", "value": 70}],
+                      "analysis": "Testo analisi",
+                      "suggestions": "Testo suggerimenti"
                     }
-                    Sogno: ${text}`;
-
+                    Sogno: ${input}`;
+                    
                     const res = await model.generateContent(prompt);
-                    const cleanJson = res.response.text().replace(/```json|```/g, "").trim();
-                    setResult(JSON.parse(cleanJson));
-                } catch (e) {
-                    console.error(e);
-                    alert("Connessione con l'inconscio interrotta. Riprova.");
-                } finally {
-                    setLoading(false);
-                }
+                    const text = res.response.text().replace(/```json|```/g, "");
+                    setData(JSON.parse(text));
+                } catch(e) { alert("Errore"); }
+                setLoading(false);
             };
 
-            return React.createElement('div', { className: "relative z-10 max-w-2xl mx-auto p-6 pt-12 pb-20" },
-                React.createElement('h1', { className: "text-5xl font-bold mb-2 text-indigo-300 text-center italic", style: { fontFamily: 'Libre Baskerville' } }, "Psyche Lens"),
-                React.createElement('p', { className: "text-center text-slate-500 mb-12 text-xs uppercase tracking-[0.4em]" }, "Archetypal Dream Analysis"),
-                
-                !result ? React.createElement('div', { className: "glass-card p-8 rounded-[2.5rem] shadow-2xl" },
-                    React.createElement('textarea', {
-                        className: "w-full h-56 bg-transparent text-white focus:outline-none resize-none placeholder:text-slate-700 text-xl leading-relaxed",
-                        placeholder: "Scrivi qui la tua visione...",
-                        value: text,
-                        onChange: (e) => setText(e.target.value)
-                    }),
-                    React.createElement('button', {
-                        className: "w-full mt-8 py-5 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-bold tracking-widest transition-all shadow-lg",
-                        onClick: analyze,
-                        disabled: loading
-                    }, loading ? "EVOCANDO L'ARCHETIPO..." : "ANALIZZA SOGNO")
-                ) : React.createElement('div', { className: "space-y-6" },
-                    React.createElement('div', { className: "glass-card p-10 rounded-[2.5rem]" },
-                        React.createElement('div', { className: "flex justify-between items-center mb-8" },
-                            React.createElement('span', { className: "px-4 py-1.5 bg-indigo-900/40 text-indigo-300 text-[10px] font-black rounded-full uppercase tracking-widest border border-indigo-500/30" }, result.category),
-                            React.createElement('button', { onClick: () => setResult(null), className: "text-slate-500 hover:text-white text-xs" }, "NUOVA ANALISI")
-                        ),
-                        React.createElement('h2', { className: "text-3xl font-bold mb-3 text-white leading-tight", style: { fontFamily: 'Libre Baskerville' } }, result.title),
-                        React.createElement('p', { className: "text-indigo-200/70 italic text-lg mb-10" }, result.summary),
-                        
-                        // Clima Emotivo (Barre percentuali)
-                        React.createElement('div', { className: "space-y-5 mb-10" },
-                            result.climatE.map((em, i) => React.createElement('div', { key: i },
-                                React.createElement('div', { className: "flex justify-between text-[10px] mb-2 uppercase font-bold text-slate-400" },
-                                    React.createElement('span', null, em.label),
-                                    React.createElement('span', null, em.percentage + "%")
-                                ),
-                                React.createElement('div', { className: "progress-bar" },
-                                    React.createElement('div', { className: "h-full bg-indigo-500 rounded-full", style: { width: em.percentage + "%" } })
-                                )
-                            ))
-                        ),
-                        
-                        React.createElement('div', { className: "space-y-6 text-slate-300 leading-relaxed text-lg" },
-                            React.createElement('p', null, result.interpretation),
-                            React.createElement('div', { className: "pt-6 border-t border-white/5" },
-                                React.createElement('h4', { className: "text-indigo-400 font-bold text-xs uppercase mb-3 tracking-widest" }, "Suggerimenti per la Veglia"),
-                                React.createElement('p', { className: "text-slate-400 italic" }, result.suggestions)
-                            )
-                        )
-                    )
-                )
-            );
-        };
+            return React.createElement('div', { className: "relative z-10 max-w-2xl mx-auto px-6 py-16" },
+                React.createElement('h1', { className: "text-5xl font-bold text-center text-indigo-300 italic mb-2", style: { fontFamily: 'Libre Baskerville' } }, "Psyche Lens"),
+                React.createElement('p', { className: "text-center text-slate-500 uppercase tracking-[0.5em] text-[10px] mb-12" }, "Archetypal Dream Analysis"),
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(React.createElement(App));
-    </script>
-</body>
-</html>
+                !data ? React.createElement('
