@@ -1,495 +1,159 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Psyche Lens</title>
-    <!-- Google Fonts: Inter for body text, Libre Baskerville for elegant italic title -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Libre+Baskerville:ital,wght@1,400&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/x-icon" href="https://picsum.photos/16/16">
-
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-      body {
-        font-family: 'Inter', sans-serif; /* Default sans-serif for body */
-      }
-      .font-libre-baskerville {
-        font-family: 'Libre Baskerville', serif; /* Only for specific titles */
-      }
-
-      /* Animated Stars CSS - Made subtler */
-      .star {
-        position: absolute;
-        background-color: #ffffff; /* White color for stars */
-        border-radius: 50%;
-        opacity: 0;
-        animation: twinkle infinite ease-in-out;
-        box-shadow: 0 0 4px 1px rgba(255, 255, 255, 0.2); /* Subtle glow */
-      }
-
-      @keyframes twinkle {
-        0%, 100% { opacity: 0; transform: scale(0.4); }
-        50% { opacity: 0.8; transform: scale(0.8); } /* Dimmer and smaller */
-      }
-
-      /* Generate some random stars for the background with subtle variations */
-      .star:nth-child(1) { top: 10%; left: 5%; width: 1px; height: 1px; animation-duration: 4s; animation-delay: 0.5s; }
-      .star:nth-child(2) { top: 20%; left: 80%; width: 2px; height: 2px; animation-duration: 5s; animation-delay: 1.2s; }
-      .star:nth-child(3) { top: 30%; left: 20%; width: 1px; height: 1px; animation-duration: 3s; animation-delay: 2s; }
-      .star:nth-child(4) { top: 45%; left: 60%; width: 2px; height: 2px; animation-duration: 4.5s; animation-delay: 0.8s; }
-      .star:nth-child(5) { top: 55%; left: 15%; width: 2px; height: 2px; animation-duration: 6s; animation-delay: 2.5s; }
-      .star:nth-child(6) { top: 65%; left: 90%; width: 1px; height: 1px; animation-duration: 3.5s; animation-delay: 1.5s; }
-      .star:nth-child(7) { top: 75%; left: 40%; width: 1px; height: 1px; animation-duration: 5.5s; animation-delay: 0.3s; }
-      .star:nth-child(8) { top: 85%; left: 70%; width: 2px; height: 2px; animation-duration: 4s; animation-delay: 3s; }
-      .star:nth-child(9) { top: 5%; left: 50%; width: 1px; height: 1px; animation-duration: 3.2s; animation-delay: 1s; }
-      .star:nth-child(10) { top: 90%; left: 25%; width: 2px; height: 2px; animation-duration: 4.8s; animation-delay: 1.8s; }
-      .star:nth-child(11) { top: 15%; left: 30%; width: 2px; height: 2px; animation-duration: 5.2s; animation-delay: 0.7s; }
-      .star:nth-child(12) { top: 35%; left: 5%; width: 1px; height: 1px; animation-duration: 3.7s; animation-delay: 2.2s; }
-      .star:nth-child(13) { top: 60%; left: 85%; width: 2px; height: 2px; animation-duration: 4.3s; animation-delay: 1.3s; }
-      .star:nth-child(14) { top: 70%; left: 10%; width: 2px; height: 2px; animation-duration: 5.8s; animation-delay: 0.1s; }
-      .star:nth-child(15) { top: 80%; left: 55%; width: 1px; height: 1px; animation-duration: 3.9s; animation-delay: 2.8s; }
-      .star:nth-child(16) { top: 25%; left: 45%; width: 1px; height: 1px; animation-duration: 4.1s; animation-delay: 0.9s; }
-      .star:nth-child(17) { top: 50%; left: 35%; width: 2px; height: 2px; animation-duration: 5.7s; animation-delay: 1.7s; }
-      .star:nth-child(18) { top: 7% ; left: 70%; width: 1px; height: 1px; animation-duration: 3.3s; animation-delay: 2.4s; }
-      .star:nth-child(19) { top: 92% ; left: 50%; width: 2px; height: 2px; animation-duration: 4.9s; animation-delay: 0.6s; }
-      .star:nth-child(20) { top: 40% ; left: 95%; width: 1px; height: 1px; animation-duration: 3.6s; animation-delay: 1.9s; }
-
-
-      /* Custom radial gradient for dark blue night background */
-      .bg-radial-night {
-        background: radial-gradient(circle at top center, #1a202c 0%, #171b3e 30%, #0d0f26 70%, #000000 100%);
-      }
-
-      /* Fade in animation for new sections */
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      .animate-fadeIn {
-        animation: fadeIn 0.5s ease-out forwards;
-      }
+        body { background: #020617; color: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
+        .dream-bg { background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 50%, #020617 100%); min-height: 100vh; position: relative; }
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .star { position: absolute; background: white; border-radius: 50%; animation: blink var(--d) infinite; }
+        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        .glass { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .psyche-title { font-family: 'Libre Baskerville', serif; background: linear-gradient(to bottom, #fff, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px rgba(129, 140, 248, 0.4)); }
+        #results { display: none; }
+        .bar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #6366f1, #a855f7); transition: width 1.5s ease; }
+        .advice-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease; }
+        .advice-card:hover { background: rgba(255, 255, 255, 0.07); transform: translateY(-5px); }
     </style>
 </head>
-<body class="min-h-screen text-gray-100 font-sans antialiased relative overflow-hidden">
-    <!-- Background Gradient and Animated Stars Container -->
-    <div class="absolute inset-0 -z-10 bg-radial-night">
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-      <div class="star"></div>
-    </div>
+<body>
+    <div class="dream-bg">
+        <div class="stars" id="starfield"></div>
+        <div class="relative z-10 max-w-2xl mx-auto px-6 pb-20">
+            
+            <nav class="flex justify-between items-center py-8 text-[10px] font-bold tracking-[0.3em] text-indigo-200/40 uppercase">
+                <div class="flex gap-8">
+                    <span class="hover:text-indigo-300 cursor-pointer transition-colors">🌙 SOGNO</span>
+                    <span class="hover:text-indigo-300 cursor-pointer transition-colors">SIMBOLI & COLORI</span>
+                    <span class="hover:text-indigo-300 cursor-pointer transition-colors">MEMORIA</span>
+                </div>
+                <div class="flex gap-6 text-lg cursor-pointer">
+                    <span onclick="toggleMusic()" title="Musica Ambient">🔊</span>
+                    <span onclick="alert('Psyche Lens v2.0 - Analizzatore Junghiano Professionale')" title="Info">ⓘ</span>
+                </div>
+            </nav>
 
-    <div class="min-h-screen flex flex-col items-center p-4">
-      <!-- Navigation Bar -->
-      <nav class="w-full max-w-6xl bg-white/5 backdrop-blur-sm rounded-full py-3 px-8 flex justify-between items-center text-lg font-light shadow-lg my-6 md:my-8 z-10">
-        <div class="flex gap-x-8"> <!-- Increased spacing for nav items -->
-          <a href="#" class="text-purple-300 opacity-70 hover:opacity-100 transition-opacity uppercase tracking-wide">🌙 SOGNO</a>
-          <a href="#" class="text-purple-300 opacity-70 hover:opacity-100 transition-opacity uppercase tracking-wide">SIMBOLI & COLORI</a>
-          <a href="#" class="text-purple-300 opacity-70 hover:opacity-100 transition-opacity uppercase tracking-wide">MEMORIA</a>
-        </div>
-        <div class="flex gap-x-4"> <!-- Icons on the right -->
-          <button id="audio-toggle"
-            class="text-purple-300 opacity-70 hover:opacity-100 transition-opacity text-2xl"
-            aria-label="Attiva/disattiva musica ambientale"
-          >
-            🔊 <!-- Initial state: Play icon -->
-          </button>
-          <button id="info-button"
-            class="text-purple-300 opacity-70 hover:opacity-100 transition-opacity text-2xl"
-            aria-label="Informazioni sull'applicazione"
-          >
-            ⓘ
-          </button>
-          <audio id="ambient-audio" src="https://www.chosic.com/wp-content/uploads/2021/07/Rain-and-Thunder-Relaxing-Ambient.mp3" loop preload="auto"></audio>
-        </div>
-      </nav>
+            <div class="text-center pt-10 pb-16">
+                <h1 class="psyche-title text-6xl font-bold italic mb-10">Psyche Lens</h1>
+                <p class="text-xl text-slate-300 italic font-light mb-4 leading-relaxed tracking-wide">
+                    "I sogni sono le stelle guida che illuminano il cammino verso la realizzazione del proprio Sè"
+                </p>
+                <p class="text-[10px] tracking-[0.4em] text-indigo-400/80 uppercase font-bold">— CARL JUNG</p>
+            </div>
 
-      <header class="text-center mb-10 mt-8 md:mt-12 z-10">
-        <h1 class="text-7xl md:text-8xl font-libre-baskerville italic leading-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-400 drop-shadow-lg">
-          Psyche Lens
-        </h1>
-        <p class="text-xl md:text-2xl text-purple-200 max-w-3xl mx-auto italic">
-          "I sogni sono le stelle guida che illuminano il cammino verso la realizzazione del proprio Sé"
-          <span class="block text-right text-base mt-2">— CARL JUNG</span>
-        </p>
-      </header>
+            <div id="input-section" class="space-y-12">
+                <div class="glass p-8 rounded-[2.5rem] shadow-2xl">
+                    <textarea id="dreamInput" class="w-full h-40 bg-transparent text-white border-none outline-none text-xl italic placeholder:text-slate-700 resize-none" placeholder="Descrivi la tua visione..."></textarea>
+                    <button onclick="analyzeDream()" id="btnText" class="w-full mt-6 py-5 bg-indigo-600/70 hover:bg-indigo-500 rounded-2xl font-bold tracking-[0.2em] transition-all shadow-lg active:scale-95">ANALIZZA VISIONE</button>
+                </div>
 
-      <main class="flex flex-col items-center w-full px-4 md:px-0 max-w-4xl z-10">
-        <!-- Dream Input Section -->
-        <div class="w-full max-w-2xl bg-white/10 p-6 rounded-xl shadow-xl backdrop-blur-lg border border-white/20">
-          <h2 class="text-3xl font-bold text-center mb-6 text-purple-200">Racconta il tuo Sogno</h2>
-          <textarea
-            id="dream-input"
-            class="w-full p-4 bg-purple-900/30 border border-purple-700 rounded-lg text-lg text-gray-100 placeholder-purple-300 focus:ring-2 focus:ring-purple-400 focus:outline-none resize-y min-h-[150px] transition-colors duration-200"
-            placeholder="Descrivi qui il tuo sogno... Ogni dettaglio è importante per Psyche Lens."
-            rows="6"
-            aria-label="Descrizione del sogno"
-          ></textarea>
-          <button
-            id="analyze-button"
-            class="mt-6 w-full py-3 px-6 bg-gradient-to-r from-purple-700 to-indigo-700 text-white font-semibold text-xl rounded-lg shadow-md hover:from-purple-800 hover:to-indigo-800 transition-all duration-300 ease-in-out transform hover:scale-105
-                       disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none disabled:transform-none"
-            aria-live="polite"
-          >
-            ANALIZZA VISIONE
-          </button>
+                <div>
+                    <h3 class="text-center text-[10px] tracking-[0.5em] text-slate-500 uppercase mb-8 font-black">Consigli per i Sognatori</h3>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="advice-card p-5 rounded-2xl text-center">
+                            <span class="text-xl block mb-2">🧘</span>
+                            <h4 class="text-[10px] font-bold text-indigo-300 uppercase mb-2">Non muoverti</h4>
+                            <p class="text-[11px] text-slate-400 leading-relaxed">Resta immobile al risveglio per trattenere le immagini.</p>
+                        </div>
+                        <div class="advice-card p-5 rounded-2xl text-center">
+                            <span class="text-xl block mb-2">🎭</span>
+                            <h4 class="text-[10px] font-bold text-indigo-300 uppercase mb-2">Focus Emotivo</h4>
+                            <p class="text-[11px] text-slate-400 leading-relaxed">Concentrati su cosa provavi, non solo sui fatti.</p>
+                        </div>
+                        <div class="advice-card p-5 rounded-2xl text-center">
+                            <span class="text-xl block mb-2">✍️</span>
+                            <h4 class="text-[10px] font-bold text-indigo-300 uppercase mb-2">Parole Chiave</h4>
+                            <p class="text-[11px] text-slate-400 leading-relaxed">Annota subito 3 parole che riassumono tutto.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="results" class="glass p-12 rounded-[3rem] shadow-2xl animate-in fade-in zoom-in duration-700">
+                <div class="flex justify-between items-center mb-10">
+                    <span id="resCategory" class="text-[10px] font-black bg-indigo-500/20 text-indigo-300 px-5 py-2 rounded-full border border-indigo-500/30 uppercase tracking-[0.2em]">ARCHETIPO</span>
+                    <button onclick="location.reload()" class="text-slate-600 hover:text-slate-400 text-[10px] font-bold tracking-widest transition-colors">CHIUDI</button>
+                </div>
+                <h2 id="resTitle" class="text-4xl font-bold text-white mb-4 psyche-title leading-tight"></h2>
+                <p id="resPhrase" class="text-indigo-200/60 italic text-xl mb-12 font-light leading-relaxed"></p>
+                
+                <div class="space-y-4 mb-12">
+                    <h4 class="text-indigo-400 font-bold text-[10px] uppercase tracking-widest">Interpretazione Profonda</h4>
+                    <p id="resAnalysis" class="text-slate-200 leading-relaxed text-lg font-light italic"></p>
+                </div>
+                
+                <div class="pt-10 border-t border-white/10">
+                    <h4 class="text-indigo-400 font-bold text-[10px] uppercase tracking-widest mb-4">Suggerimenti Personalizzati</h4>
+                    <p id="resSugg" class="text-slate-400 italic text-base leading-relaxed"></p>
+                </div>
+            </div>
         </div>
         
-        <!-- Dream Tips Section -->
-        <section id="dream-tips-section" class="w-full max-w-2xl mt-12 mb-8 p-6 bg-white/5 backdrop-blur-sm rounded-xl shadow-xl border border-white/20 text-center animate-fadeIn">
-          <h3 class="text-3xl font-bold text-purple-200 mb-6">CONSIGLI PER I SOGNATORI</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-purple-900/40 p-5 rounded-lg border border-purple-700">
-              <h4 class="text-xl font-semibold text-purple-300 mb-2">SCRIVI SUBITO</h4>
-              <p class="text-gray-200 text-sm">Appena sveglio, annota ogni dettaglio prima che svanisca.</p>
-            </div>
-            <div class="bg-purple-900/40 p-5 rounded-lg border border-purple-700">
-              <h4 class="text-xl font-semibold text-purple-300 mb-2">RESTA IMMOBILE</h4>
-              <p class="text-gray-200 text-sm">Non muoverti per qualche istante, rivivi il sogno nella tua mente.</p>
-            </div>
-            <div class="bg-purple-900/40 p-5 rounded-lg border border-purple-700">
-              <h4 class="text-xl font-semibold text-purple-300 mb-2">FOCUS SULLE EMOZIONI</h4>
-              <p class="text-gray-200 text-sm">Cosa provavi? Le emozioni sono la chiave dell'interpretazione.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- Dream Analysis Result Section (initially hidden) -->
-        <div id="analysis-result-section" class="w-full max-w-2xl bg-white/10 p-8 rounded-xl shadow-xl backdrop-blur-lg mt-8 border border-white/20 animate-fadeIn" style="display: none;">
-          <div id="error-message" class="w-full bg-red-800/20 p-6 rounded-xl shadow-xl backdrop-blur-lg mt-8 border border-red-600 animate-fadeIn mb-8" role="alert" style="display: none;">
-            <h3 class="text-2xl font-bold text-red-300 mb-4">Errore nell'Analisi</h3>
-            <p class="text-red-200"></p>
-            <p class="text-red-200 mt-2 text-sm">Riprova con una descrizione del sogno più dettagliata o più semplice.</p>
-          </div>
-
-          <h3 id="result-title" class="text-4xl font-extrabold text-purple-300 mb-4 text-center leading-tight"></h3>
-          <p id="result-phrase" class="text-xl italic text-purple-200 text-center mb-8"></p>
-          
-          <div class="mb-6 border-t border-purple-600 pt-6">
-            <h4 class="text-2xl font-semibold text-purple-200 mb-3">Archetipo Prevalente</h4>
-            <div class="flex justify-center">
-              <span id="result-category" class="bg-purple-700/50 rounded-full px-6 py-2 text-xl font-bold text-purple-200 shadow-md"></span>
-            </div>
-          </div>
-
-          <div class="mb-6 border-t border-purple-600 pt-6">
-            <h4 class="text-2xl font-semibold text-purple-200 mb-3">Paesaggio Emotivo</h4>
-            <div id="result-emotions" class="flex flex-col space-y-2">
-              <!-- Emotion bars will be injected here -->
-            </div>
-          </div>
-
-          <div class="mb-8 border-t border-purple-600 pt-6">
-            <h4 class="text-2xl font-semibold text-purple-200 mb-3">L'Interpretazione di Psyche Lens</h4>
-            <p id="result-analysis" class="text-gray-200 leading-relaxed text-lg whitespace-pre-wrap"></p>
-          </div>
-
-          <div class="bg-purple-900/40 p-5 rounded-lg border border-purple-600 border-dashed">
-            <h4 class="text-2xl font-semibold text-purple-300 mb-3 text-center">SUGGERIMENTI PERSONALIZZATI</h4>
-            <p id="result-suggestions" class="text-gray-100 text-xl text-center leading-relaxed italic"></p>
-          </div>
-        </div>
-      </main>
-
-      <footer class="mt-12 mb-8 text-center text-gray-400 text-sm z-10">
-        <p>Powered by Gemini AI e Psyche Lens</p>
-        <p>&copy; <span id="current-year"></span> Jungian Dream Analyst. Tutti i diritti riservati.</p>
-      </footer>
+        <audio id="bg-music" loop src="https://www.chosic.com/wp-content/uploads/2021/07/Rain-and-Thunder-Relaxing-Ambient.mp3"></audio>
     </div>
 
-    <script type="module">
-      import { GoogleGenAI, Type } from "https://esm.sh/@google/genai@^1.35.0";
-
-      // IMPORTANT: Replace 'YOUR_GEMINI_API_KEY' with your actual Gemini API Key.
-      // For security, in a real application, API keys should be handled on a server-side backend.
-      const API_KEY = 'AIzaSyAQdww2E3lA2qbY9Xpk7wKPkSH_vN5eyog'; 
-
-      const getGeminiClient = () => {
-        if (!API_KEY || API_KEY === 'YOUR_GEMINI_API_KEY') {
-          console.error("API Key not set. Please replace 'YOUR_GEMINI_API_KEY' with your actual key.");
-          throw new Error("API Key non configurata. Impossibile procedere con l'analisi.");
-        }
-        return new GoogleGenAI({ apiKey: API_KEY });
-      };
-
-      // DOM Elements
-      const dreamInput = document.getElementById('dream-input');
-      const analyzeButton = document.getElementById('analyze-button');
-      const ambientAudio = document.getElementById('ambient-audio');
-      const audioToggle = document.getElementById('audio-toggle');
-      const infoButton = document.getElementById('info-button');
-      const dreamTipsSection = document.getElementById('dream-tips-section');
-      const analysisResultSection = document.getElementById('analysis-result-section');
-      const errorMessageDiv = document.getElementById('error-message');
-      const errorMessageP = errorMessageDiv.querySelector('p');
-      const resultTitle = document.getElementById('result-title');
-      const resultPhrase = document.getElementById('result-phrase');
-      const resultCategory = document.getElementById('result-category');
-      const resultEmotions = document.getElementById('result-emotions');
-      const resultAnalysis = document.getElementById('result-analysis');
-      const resultSuggestions = document.getElementById('result-suggestions');
-      const currentYearSpan = document.getElementById('current-year');
-
-      let isPlayingAudio = false;
-
-      // Update current year in footer
-      currentYearSpan.textContent = new Date().getFullYear().toString();
-
-      /**
-       * Creates an HTML element for an emotion bar.
-       * @param {object} emotion - The emotion object { label: string, value: number }.
-       * @returns {HTMLElement} The created div element.
-       */
-      function createEmotionBar(emotion) {
-        const div = document.createElement('div');
-        div.className = "flex items-center mb-2";
-        div.setAttribute('role', 'group');
-        div.setAttribute('aria-label', `Emozione: ${emotion.label}`);
-
-        div.innerHTML = `
-          <span class="text-sm font-medium text-gray-200 w-24 truncate">${emotion.label}</span>
-          <div class="flex-1 bg-purple-900/50 rounded-full h-2 ml-3">
-            <div
-              class="bg-gradient-to-r from-pink-500 to-purple-500 h-full rounded-full
-                     transition-all duration-700 ease-out transform origin-left
-                     hover:scale-x-105 hover:shadow-lg"
-              style="width: ${emotion.value}%;"
-              role="progressbar"
-              aria-valuenow="${emotion.value}"
-              aria-valuemin="0"
-              aria-valuemax="100"
-              aria-label="Intensità: ${emotion.value}%"
-            ></div>
-          </div>
-          <span class="text-xs text-purple-300 ml-2">${emotion.value}%</span>
-        `;
-        return div;
-      }
-
-      /**
-       * Displays the dream analysis result in the UI.
-       * @param {object} result - The parsed JSON result from Gemini API.
-       */
-      function displayAnalysisResult(result) {
-        errorMessageDiv.style.display = 'none'; // Hide any previous errors
-        analysisResultSection.style.display = 'block';
-        dreamTipsSection.style.display = 'none';
-
-        resultTitle.textContent = result.title;
-        resultPhrase.textContent = `"${result.phrase}"`;
-        resultCategory.textContent = result.category;
-
-        resultEmotions.innerHTML = ''; // Clear previous emotions
-        result.emotions.forEach(emotion => {
-          resultEmotions.appendChild(createEmotionBar(emotion));
-        });
-
-        resultAnalysis.textContent = result.analysis;
-        resultSuggestions.textContent = `"${result.suggestions}"`;
-      }
-
-      /**
-       * Displays an error message in the UI.
-       * @param {string} message - The error message to display.
-       */
-      function displayError(message) {
-        analysisResultSection.style.display = 'block'; // Show the section to display the error
-        dreamTipsSection.style.display = 'none'; // Hide tips when an error occurs
-        errorMessageDiv.style.display = 'block';
-        errorMessageP.textContent = message;
-        
-        // Clear previous results visually, but keep error visible
-        resultTitle.textContent = '';
-        resultPhrase.textContent = '';
-        resultCategory.textContent = '';
-        resultEmotions.innerHTML = '';
-        resultAnalysis.textContent = '';
-        resultSuggestions.textContent = '';
-      }
-
-      /**
-       * Toggles the loading state of the analyze button.
-       * @param {boolean} isLoading - True if loading, false otherwise.
-       */
-      function toggleLoading(isLoading) {
-        analyzeButton.disabled = isLoading || dreamInput.value.trim() === '';
-        if (isLoading) {
-          analyzeButton.innerHTML = `
-            <div class="flex items-center justify-center">
-              <svg class="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24" aria-hidden="true">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Analizzando Visione...
-            </div>
-          `;
-        } else {
-          analyzeButton.textContent = "ANALIZZA VISIONE";
-        }
-      }
-
-      /**
-       * Sends the dream description to the Gemini model for Jungian archetypal analysis.
-       * @param {string} dreamDescription - The user's description of their dream.
-       * @returns {Promise<object>} A Promise that resolves to the parsed DreamAnalysisResult.
-       */
-      async function analyzeDream(dreamDescription) {
-        const ai = getGeminiClient();
-
-        const prompt = `Agisci come Psyche Lens, un analista dei sogni esperto in psicologia junghiana. Il tuo compito è analizzare il sogno dell'utente identificando archetipi (Ombra, Anima/Animus, Sé, Persona, Grande Madre, Vecchio Saggio/Donna, Briccone, Eroe, Fanciulla, Bambino), emozioni e simboli.
-
-Rispondi SEMPRE e SOLO con un oggetto JSON puro, senza testo prima o dopo, seguendo rigorosamente questo schema:
-{
-  "title": "Un titolo evocativo per l'analisi",
-  "phrase": "Una sintesi poetica del messaggio centrale del sogno",
-  "category": "L'archetipo junghiano prevalente (e.g., L'Ombra, L'Anima, Il Sé)",
-  "emotions": [
-    {"label": "NomeEmozione1", "value": 80},
-    {"label": "NomeEmozione2", "value": 40}
-  ],
-  "analysis": "Un'interpretazione profonda del sogno, inclusi simboli e come si collegano all'archetipo identificato. Circa 100 parole.",
-  "suggestions": "Un consiglio pratico e orientato alla crescita per il sognatore, basato sull'analisi. Chiamali 'SUGGERIMENTI PERSONALIZZATI'."
-}
-
-Ecco il sogno da analizzare:
-"${dreamDescription}"
-`;
-
-        try {
-          const response = await ai.models.generateContent({
-            model: "gemini-3-pro-preview", // Using a capable model for complex reasoning, as gemini-1.5-flash is deprecated.
-            contents: [{ parts: [{ text: prompt }] }],
-            config: {
-              responseMimeType: "application/json",
-              responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                  title: { type: Type.STRING, description: 'An evocative title for the analysis.' },
-                  phrase: { type: Type.STRING, description: 'A poetic summary phrase of the dream\'s central message.' },
-                  category: { type: Type.STRING, description: 'The prevalent Jungian archetype (e.g., L\'Ombra, L\'Anima, Il Sé).' },
-                  emotions: {
-                    type: Type.ARRAY,
-                    items: {
-                      type: Type.OBJECT,
-                      properties: {
-                        label: { type: Type.STRING, description: 'Name of the emotion.' },
-                        value: { type: Type.NUMBER, description: 'Intensity of the emotion on a 0-100 scale.' },
-                      },
-                      required: ['label', 'value'],
-                      propertyOrdering: ['label', 'value'],
-                    },
-                    description: 'An array of emotions with their intensity.'
-                  },
-                  analysis: { type: Type.STRING, description: 'A deep interpretation of the dream, including symbols and their connection to the identified archetype, around 100 words.' },
-                  suggestions: { type: Type.STRING, description: 'Practical and growth-oriented advice for the dreamer based on the analysis, labeled "SUGGERIMENTI PERSONALIZZATI".' },
-                },
-                required: ["title", "phrase", "category", "emotions", "analysis", "suggestions"],
-                propertyOrdering: ["title", "phrase", "category", "emotions", "analysis", "suggestions"],
-              },
-              temperature: 0.9,
-              topP: 0.95,
-              topK: 64,
-            },
-          });
-
-          const jsonStr = response.text.trim();
-          let parsedResult;
-          try {
-            parsedResult = JSON.parse(jsonStr);
-          } catch (parseError) {
-            console.error("Failed to parse JSON response from Gemini:", jsonStr, parseError);
-            throw new Error("La risposta dell'AI non è nel formato atteso. Riprova.");
-          }
-
-          return parsedResult;
-        } catch (error) {
-          console.error("Error analyzing dream with Gemini:", error);
-          if (error instanceof Error) {
-            throw new Error(`Failed to get dream analysis: ${error.message}.`);
-          }
-          throw new Error("Si è verificato un errore sconosciuto durante l'analisi del sogno.");
-        }
-      }
-
-      // Event Listeners
-      analyzeButton.addEventListener('click', async () => {
-        const dreamText = dreamInput.value.trim();
-        if (!dreamText) {
-          displayError("Per favor, inserisci una descrizione del sogno.");
-          return;
+    <script>
+        // Effetto Stelle
+        const field = document.getElementById('starfield');
+        for(let i=0; i<150; i++) {
+            const s = document.createElement('div');
+            s.className = 'star';
+            s.style.width = s.style.height = Math.random()*2+'px';
+            s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%';
+            s.style.setProperty('--d', Math.random()*3+2+'s');
+            field.appendChild(s);
         }
 
-        toggleLoading(true);
-        errorMessageDiv.style.display = 'none'; // Hide any previous errors
-        analysisResultSection.style.display = 'none'; // Hide previous results
-        dreamTipsSection.style.display = 'none'; // Hide tips while analysis is in progress
-
-        try {
-          const result = await analyzeDream(dreamText);
-          displayAnalysisResult(result);
-        } catch (err) {
-          displayError(err.message);
-        } finally {
-          toggleLoading(false);
+        function toggleMusic() {
+            const m = document.getElementById('bg-music');
+            m.paused ? m.play() : m.pause();
         }
-      });
 
-      dreamInput.addEventListener('input', () => {
-        analyzeButton.disabled = dreamInput.value.trim() === '';
-        // If user clears input, reset view to initial state (show tips, hide results/errors)
-        if (dreamInput.value.trim() === '') {
-          analysisResultSection.style.display = 'none';
-          errorMessageDiv.style.display = 'none';
-          dreamTipsSection.style.display = 'block';
+        async function analyzeDream() {
+            const input = document.getElementById('dreamInput').value;
+            if(!input) return;
+            
+            const btn = document.getElementById('btnText');
+            btn.innerText = "EVOCAZIONE...";
+            btn.disabled = true;
+
+            // TUA CHIAVE API
+            const API_KEY = 'AIzaSyAQdww2E3lA2qbY9Xpk7wKPkSH_vN5eyog';
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+            const prompt = `Analizza il sogno in italiano e rispondi SOLO con un JSON: {"title":"Titolo","phrase":"Sintesi","category":"Archetipo","analysis":"Interpretazione","suggestions":"Consiglio"}. Sogno: ${input}`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
+                const json = await response.json();
+                const text = json.candidates[0].content.parts[0].text;
+                const cleanJson = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
+
+                document.getElementById('input-section').classList.add('hidden');
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('resTitle').innerText = cleanJson.title;
+                document.getElementById('resPhrase').innerText = cleanJson.phrase;
+                document.getElementById('resCategory').innerText = cleanJson.category;
+                document.getElementById('resAnalysis').innerText = cleanJson.analysis;
+                document.getElementById('resSugg').innerText = cleanJson.suggestions;
+                
+                document.getElementById('bg-music').play().catch(() => {});
+            } catch (error) {
+                console.error(error);
+                alert("Errore di connessione. Verifica che la tua API KEY sia attiva.");
+                btn.innerText = "ANALIZZA VISIONE";
+                btn.disabled = false;
+            }
         }
-      });
-
-      audioToggle.addEventListener('click', () => {
-        if (isPlayingAudio) {
-          ambientAudio.pause();
-          audioToggle.textContent = '🔊'; // Show play icon
-        } else {
-          ambientAudio.play().catch(e => console.error("Error playing audio:", e));
-          audioToggle.textContent = '🔇'; // Show mute icon
-        }
-        isPlayingAudio = !isPlayingAudio;
-      });
-
-      infoButton.addEventListener('click', () => {
-        alert(
-          "Psyche Lens: Un viaggio nell'inconscio attraverso la lente della psicologia junghiana. " +
-          "Inserisci il tuo sogno e scopri gli archetipi, le emozioni e i SUGGERIMENTI PERSONALIZZATI per la tua crescita interiore. " +
-          "Powered by Gemini AI."
-        );
-      });
-
-      // Initial state setup on DOMContentLoaded
-      document.addEventListener('DOMContentLoaded', () => {
-        analyzeButton.disabled = true; // Initially disable button
-        ambientAudio.volume = 0.3; // Set default volume
-        analysisResultSection.style.display = 'none'; // Hide results section on load
-        errorMessageDiv.style.display = 'none'; // Hide error section on load
-        dreamTipsSection.style.display = 'block'; // Show tips section on load
-      });
-
     </script>
 </body>
 </html>
