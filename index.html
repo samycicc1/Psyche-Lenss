@@ -19,7 +19,7 @@
         @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         .glass { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .psyche-title { font-family: 'Libre Baskerville', serif; background: linear-gradient(to bottom, #fff, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px rgba(129, 140, 248, 0.4)); }
-        .bar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #6366f1, #a855f7); transition: width 1.5s ease-in-out; }
+        .bar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #6366f1, #a855f7); transition: width 1.5s ease; }
     </style>
 </head>
 <body>
@@ -41,13 +41,12 @@
         }
 
         const { useState } = React;
-        const API_KEY = 'AIzaSyAtoTeJ676aX2EjEMZZ58ax2FgaBqxbMx8'; // La tua chiave
+        const API_KEY = 'AIzaSyAtoTeJ676aX2EjEMZZ58ax2FgaBqxbMx8'; 
 
         const App = () => {
             const [input, setInput] = useState('');
             const [data, setData] = useState(null);
             const [loading, setLoading] = useState(false);
-            const [info, setInfo] = useState(false);
 
             const analyze = async () => {
                 if(!input.trim()) return;
@@ -55,18 +54,21 @@
                 try {
                     const genAI = new window.GoogleGenerativeAI.GoogleGenerativeAI(API_KEY);
                     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                    // Schema originale con suggerimenti e categorie
-                    const prompt = `Analizza il sogno e rispondi in JSON: {"title":"Titolo","phrase":"Sintesi","category":"Shadow","emotions":[{"label":"Emozione","value":75}],"analysis":"Testo","suggestions":"Consiglio"}. Sogno: ${input}`;
+                    const prompt = `Analizza il sogno e rispondi ESCLUSIVAMENTE con un oggetto JSON in italiano: {"title":"Titolo","phrase":"Sintesi","category":"Shadow","emotions":[{"label":"Anxiety","value":75}],"analysis":"Testo","suggestions":"Consiglio"}. Sogno: ${input}`;
+                    
                     const res = await model.generateContent(prompt);
-                    const text = res.response.text().replace(/```json|```/g, "");
-                    setData(JSON.parse(text));
+                    const responseText = res.response.text();
+                    const cleanJson = responseText.substring(responseText.indexOf('{'), responseText.lastIndexOf('}') + 1);
+                    setData(JSON.parse(cleanJson));
                     document.getElementById('bg-music').play().catch(() => {});
-                } catch(e) { alert("Errore"); }
+                } catch(e) { 
+                    console.error(e);
+                    alert("Connessione instabile. Riprova tra un istante."); 
+                }
                 setLoading(false);
             };
 
             return React.createElement('div', { className: "relative z-10 max-w-2xl mx-auto px-6" },
-                // Navigazione superiore
                 React.createElement('nav', { className: "flex justify-between items-center py-6 text-[10px] font-bold tracking-[0.2em] text-indigo-200/50 uppercase" },
                     React.createElement('div', { className: "flex gap-6" },
                         React.createElement('span', { className: "text-indigo-400" }, "🌙 Sogno"),
@@ -75,11 +77,10 @@
                     ),
                     React.createElement('div', { className: "flex gap-4 text-sm cursor-pointer" },
                         React.createElement('span', { onClick: () => { const a = document.getElementById('bg-music'); a.paused ? a.play() : a.pause(); } }, "🔊"),
-                        React.createElement('span', { onClick: () => setInfo(!info) }, "ⓘ")
+                        React.createElement('span', null, "ⓘ")
                     )
                 ),
 
-                // Header con citazione di Jung
                 React.createElement('div', { className: "text-center pt-10 pb-16" },
                     React.createElement('h1', { className: "psyche-title text-6xl font-bold italic mb-12" }, "Psyche Lens"),
                     React.createElement('p', { className: "text-xl text-slate-300 italic font-light mb-4" }, 
@@ -89,27 +90,25 @@
                 ),
 
                 !data ? React.createElement('div', null,
-                    React.createElement('p', { className: "text-center text-[10px] tracking-[0.4em] text-slate-500 uppercase mb-8" }, "AFFIDA IL TUO SOGNO ALLA LENTE"),
+                    React.createElement('p', { className: "text-center text-[10px] tracking-[0.4em] text-slate-500 uppercase mb-8 font-bold" }, "AFFIDA IL TUO SOGNO ALLA LENTE"),
                     React.createElement('div', { className: "glass p-8 rounded-[2rem]" },
                         React.createElement('textarea', {
-                            className: "w-full h-32 bg-transparent text-white border-none outline-none text-lg italic",
+                            className: "w-full h-32 bg-transparent text-white border-none outline-none text-lg italic placeholder:text-slate-700",
                             placeholder: "Ero un'aquila che sorvolava un deserto di specchi...",
                             value: input, onChange: (e) => setInput(e.target.value)
                         }),
                         React.createElement('button', {
-                            className: "w-full mt-6 py-4 bg-indigo-600/80 rounded-2xl font-bold tracking-widest",
+                            className: "w-full mt-6 py-4 bg-indigo-600/80 rounded-2xl font-bold tracking-widest hover:bg-indigo-500 transition-all shadow-lg",
                             onClick: analyze, disabled: loading
                         }, loading ? "EVOCAZIONE..." : "ANALIZZA VISIONE")
                     )
-                ) : React.createElement('div', { className: "glass p-10 rounded-[2.5rem] animate-in fade-in" },
+                ) : React.createElement('div', { className: "glass p-10 rounded-[2.5rem] animate-in fade-in duration-1000" },
                     React.createElement('div', { className: "flex justify-between items-center mb-8" },
-                        React.createElement('span', { className: "text-[9px] font-black bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full uppercase tracking-widest" }, data.category),
+                        React.createElement('span', { className: "text-[9px] font-black bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full border border-indigo-500/30 uppercase tracking-widest" }, data.category),
                         React.createElement('button', { onClick: () => setData(null), className: "text-slate-600 text-[10px] font-bold" }, "CHIUDI")
                     ),
                     React.createElement('h2', { className: "text-3xl font-bold text-white mb-2 psyche-title" }, data.title),
                     React.createElement('p', { className: "text-indigo-200/60 italic text-lg mb-10" }, data.phrase),
-                    
-                    // Grafici emozioni
                     React.createElement('div', { className: "space-y-6 mb-10" },
                         data.emotions.map((em, i) => React.createElement('div', { key: i },
                             React.createElement('div', { className: "flex justify-between text-[9px] uppercase font-bold text-slate-500 mb-2" },
@@ -121,11 +120,10 @@
                             )
                         ))
                     ),
-                    React.createElement('div', { className: "text-slate-300 mb-10" }, data.analysis),
-                    // Suggerimenti per sognatori
+                    React.createElement('div', { className: "text-slate-300 mb-10 leading-relaxed text-lg font-light" }, data.analysis),
                     React.createElement('div', { className: "pt-8 border-t border-white/5" },
-                        React.createElement('h4', { className: "text-indigo-400 font-bold text-[9px] uppercase mb-3" }, "SUGGERIMENTI PER IL SOGNATORE"),
-                        React.createElement('p', { className: "text-slate-400 italic text-sm" }, data.suggestions)
+                        React.createElement('h4', { className: "text-indigo-400 font-bold text-[9px] uppercase mb-3 tracking-widest" }, "SUGGERIMENTI PER IL SOGNATORE"),
+                        React.createElement('p', { className: "text-slate-400 italic text-sm leading-relaxed" }, data.suggestions)
                     )
                 )
             );
