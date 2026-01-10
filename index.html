@@ -7,16 +7,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* Risoluzione problema scorrimento: rimosso overflow:hidden */
-        body { background: #020617; color: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; min-height: 100vh; }
-        .dream-bg { background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 50%, #020617 100%); min-height: 100vh; width: 100%; position: relative; padding-bottom: 50px; }
+        body { background: #020617; color: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; min-height: 100vh; overflow-y: auto; }
+        .dream-bg { background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 50%, #020617 100%); min-height: 100vh; position: relative; padding-bottom: 80px; }
         .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
         .star { position: absolute; background: white; border-radius: 50%; animation: blink var(--d) infinite; }
         @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         .glass { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .psyche-title { font-family: 'Libre Baskerville', serif; background: linear-gradient(to bottom, #fff, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .psyche-title { font-family: 'Libre Baskerville', serif; background: linear-gradient(to bottom, #fff, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px rgba(129, 140, 248, 0.4)); }
         #results { display: none; }
-        .advice-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); transition: 0.3s; }
+        .nav-link { cursor: pointer; transition: all 0.3s; }
+        .nav-link:hover { color: #818cf8; opacity: 1; text-shadow: 0 0 8px rgba(129, 140, 248, 0.6); }
     </style>
 </head>
 <body>
@@ -24,64 +24,56 @@
         <div class="stars" id="starfield"></div>
         <div class="relative z-10 max-w-2xl mx-auto px-6">
             
-            <nav class="flex justify-between items-center py-8 text-[10px] font-bold tracking-[0.3em] text-indigo-200/40 uppercase">
+            <nav class="flex justify-between items-center py-8 text-[10px] font-bold tracking-[0.3em] text-indigo-200/50 uppercase">
                 <div class="flex gap-8">
-                    <span>🌙 SOGNO</span>
-                    <span>SIMBOLI & COLORI</span>
-                    <span>MEMORIA</span>
+                    <span class="nav-link text-indigo-400" onclick="location.reload()">🌙 SOGNO</span>
+                    <span class="nav-link" onclick="alert('Sezione Simboli in arrivo')">SIMBOLI & COLORI</span>
+                    <span class="nav-link" onclick="alert('Sezione Memoria in arrivo')">MEMORIA</span>
                 </div>
-                <div class="flex gap-6 text-lg cursor-pointer">
-                    <span onclick="toggleMusic()">🔊</span>
-                    <span onclick="alert('Psyche Lens v2.0')">ⓘ</span>
+                <div class="flex gap-6 text-lg">
+                    <span class="cursor-pointer" onclick="toggleMusic()">🔊</span>
+                    <span class="cursor-pointer" onclick="alert('Psyche Lens v2.1')">ⓘ</span>
                 </div>
             </nav>
 
-            <div class="text-center pt-6 pb-12">
-                <h1 class="psyche-title text-6xl font-bold italic mb-8">Psyche Lens</h1>
-                <p class="text-lg text-slate-300 italic font-light leading-relaxed mb-4">"I sogni sono le stelle guida che illuminano il cammino verso la realizzazione del proprio Sè"</p>
-                <p class="text-[9px] tracking-[0.4em] text-indigo-400/80 uppercase">— CARL JUNG</p>
+            <div class="text-center pt-8 pb-12">
+                <h1 class="psyche-title text-6xl font-bold italic mb-10">Psyche Lens</h1>
+                <p class="text-xl text-slate-300 italic font-light mb-6 leading-relaxed">
+                    "I sogni sono le stelle guida che illuminano il cammino verso la realizzazione del proprio Sè"
+                </p>
+                <p class="text-[10px] tracking-[0.4em] text-indigo-400 uppercase font-bold">— CARL JUNG</p>
             </div>
 
-            <div id="input-section" class="space-y-10">
-                <div class="glass p-8 rounded-[2rem]">
-                    <h2 class="text-center text-xl font-bold mb-6 text-indigo-200">Racconta il tuo Sogno</h2>
-                    <textarea id="dreamInput" class="w-full h-40 bg-indigo-950/30 text-white p-4 rounded-xl border border-indigo-500/30 outline-none italic resize-none" placeholder="Ero in un bosco..."></textarea>
-                    <button onclick="analyzeDream()" id="btnText" class="w-full mt-6 py-4 bg-indigo-600/60 hover:bg-indigo-500 rounded-xl font-bold tracking-widest transition-all shadow-lg">ANALIZZA VISIONE</button>
+            <div id="input-section" class="space-y-12">
+                <div class="glass p-8 rounded-[2.5rem] shadow-2xl text-center">
+                    <h2 class="text-2xl font-bold mb-6 text-white tracking-tight">Racconta il tuo Sogno</h2>
+                    <textarea id="dreamInput" class="w-full h-44 bg-indigo-950/20 text-white p-6 rounded-2xl border border-indigo-500/20 outline-none text-lg italic placeholder:text-slate-700 resize-none mb-4" placeholder="Cosa hai visto nella tua visione?"></textarea>
+                    <button onclick="analyzeDream()" id="btnText" class="w-full py-5 bg-indigo-600/80 hover:bg-indigo-500 rounded-2xl font-bold tracking-[0.2em] transition-all shadow-lg">ANALIZZA VISIONE</button>
                 </div>
 
-                <div class="pb-10">
-                    <h3 class="text-center text-[10px] tracking-[0.4em] text-slate-500 uppercase mb-6 font-bold">Consigli per i Sognatori</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="advice-card p-4 rounded-xl text-center">
-                            <h4 class="text-indigo-300 text-[10px] font-bold uppercase mb-2">Non muoverti</h4>
-                            <p class="text-[11px] text-slate-400">Resta immobile al risveglio per non perdere il ricordo.</p>
-                        </div>
-                        <div class="advice-card p-4 rounded-xl text-center">
-                            <h4 class="text-indigo-300 text-[10px] font-bold uppercase mb-2">Focus Emotivo</h4>
-                            <p class="text-[11px] text-slate-400">Ricorda cosa provavi, non solo quello che vedevi.</p>
-                        </div>
-                        <div class="advice-card p-4 rounded-xl text-center">
-                            <h4 class="text-indigo-300 text-[10px] font-bold uppercase mb-2">Parole Chiave</h4>
-                            <p class="text-[11px] text-slate-400">Annota subito tre concetti base del sogno.</p>
-                        </div>
-                    </div>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="glass p-4 rounded-2xl"><span class="block text-xl mb-1">🧘</span><p class="text-[9px] uppercase font-black text-indigo-300">Resta Immobile</p></div>
+                    <div class="glass p-4 rounded-2xl"><span class="block text-xl mb-1">🎭</span><p class="text-[9px] uppercase font-black text-indigo-300">Focus Emozioni</p></div>
+                    <div class="glass p-4 rounded-2xl"><span class="block text-xl mb-1">✍️</span><p class="text-[9px] uppercase font-black text-indigo-300">Scrivi Subito</p></div>
                 </div>
             </div>
 
-            <div id="results" class="glass p-10 rounded-[2.5rem] mt-6 animate-in fade-in duration-700">
-                <div class="flex justify-between items-center mb-6">
-                    <span id="resCategory" class="text-[9px] font-black bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full border border-indigo-500/30 uppercase">ARCHETIPO</span>
-                    <button onclick="location.reload()" class="text-slate-600 text-[10px] font-bold">CHIUDI</button>
+            <div id="results" class="glass p-10 rounded-[2.5rem] mt-10">
+                <div class="flex justify-between items-center mb-8">
+                    <span id="resCategory" class="text-[9px] font-black bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full border border-indigo-500/30 uppercase tracking-widest">ARCHETIPO</span>
+                    <button onclick="location.reload()" class="text-slate-600 text-[10px] font-bold uppercase tracking-tighter">Chiudi</button>
                 </div>
                 <h2 id="resTitle" class="text-3xl font-bold text-white mb-2 psyche-title"></h2>
-                <p id="resPhrase" class="text-indigo-200/60 italic text-lg mb-8"></p>
-                <div class="space-y-4 mb-8">
-                    <h4 class="text-indigo-400 font-bold text-[9px] uppercase tracking-widest">Interpretazione</h4>
-                    <p id="resAnalysis" class="text-slate-300 leading-relaxed text-lg font-light"></p>
-                </div>
-                <div class="pt-6 border-t border-white/5">
-                    <h4 class="text-indigo-400 font-bold text-[9px] uppercase mb-2">Suggerimenti</h4>
-                    <p id="resSugg" class="text-slate-400 italic text-sm"></p>
+                <p id="resPhrase" class="text-indigo-200/60 italic text-lg mb-10"></p>
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-indigo-400 font-bold text-[9px] uppercase mb-2 tracking-widest">Interpretazione</h4>
+                        <p id="resAnalysis" class="text-slate-300 leading-relaxed text-lg font-light italic"></p>
+                    </div>
+                    <div class="pt-6 border-t border-white/5">
+                        <h4 class="text-indigo-400 font-bold text-[9px] uppercase mb-2 tracking-widest">Suggerimenti</h4>
+                        <p id="resSugg" class="text-slate-400 italic text-sm leading-relaxed"></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -89,7 +81,6 @@
     </div>
 
     <script>
-        // Stelle
         const field = document.getElementById('starfield');
         for(let i=0; i<150; i++) {
             const s = document.createElement('div');
@@ -119,8 +110,10 @@
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: `Analizza in italiano: {"title":"Titolo","phrase":"Sintesi","category":"Archetipo","analysis":"Interpretazione","suggestions":"Consiglio"}. Sogno: ${input}` }] }] })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: `Analizza in italiano e rispondi SOLO JSON: {"title":"Titolo","phrase":"Sintesi","category":"Archetipo","analysis":"Interpretazione","suggestions":"Consiglio"}. Sogno: ${input}` }] }] })
                 });
+
+                if (!response.ok) throw new Error();
 
                 const json = await response.json();
                 const text = json.candidates[0].content.parts[0].text;
@@ -135,7 +128,7 @@
                 document.getElementById('resSugg').innerText = cleanJson.suggestions;
                 document.getElementById('bg-music').play().catch(() => {});
             } catch (error) {
-                alert("Errore di connessione.");
+                alert("Errore di connessione. Verifica che la chiave API sia attiva su Google AI Studio.");
                 btn.innerText = "ANALIZZA VISIONE";
                 btn.disabled = false;
             }
