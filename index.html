@@ -1,121 +1,102 @@
+
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Psyche Lens</title>
+    <!-- Google Fonts: Inter for body text, Libre Baskerville for elegant italic title -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Libre+Baskerville:ital,wght@1,400&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="https://picsum.photos/16/16">
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.35.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
     <style>
-        body { background: #020617; color: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
-        .dream-bg { background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 50%, #020617 100%); min-height: 100vh; position: relative; }
-        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        .star { position: absolute; background: white; border-radius: 50%; animation: blink var(--d) infinite; }
-        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-        .glass { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .psyche-title { font-family: 'Libre Baskerville', serif; background: linear-gradient(to bottom, #fff, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px rgba(129, 140, 248, 0.4)); }
-        #loading { display: none; }
-        #results { display: none; }
+      body {
+        font-family: 'Inter', sans-serif; /* Default sans-serif for body */
+      }
+      .font-libre-baskerville {
+        font-family: 'Libre Baskerville', serif; /* Only for specific titles */
+      }
+
+      /* Animated Stars CSS - Made subtler */
+      .star {
+        position: absolute;
+        background-color: #ffffff; /* White color for stars */
+        border-radius: 50%;
+        opacity: 0;
+        animation: twinkle infinite ease-in-out;
+        box-shadow: 0 0 4px 1px rgba(255, 255, 255, 0.2); /* Subtle glow */
+      }
+
+      @keyframes twinkle {
+        0%, 100% { opacity: 0; transform: scale(0.4); }
+        50% { opacity: 0.8; transform: scale(0.8); } /* Dimmer and smaller */
+      }
+
+      /* Generate some random stars for the background with subtle variations */
+      .star:nth-child(1) { top: 10%; left: 5%; width: 1px; height: 1px; animation-duration: 4s; animation-delay: 0.5s; }
+      .star:nth-child(2) { top: 20%; left: 80%; width: 2px; height: 2px; animation-duration: 5s; animation-delay: 1.2s; }
+      .star:nth-child(3) { top: 30%; left: 20%; width: 1px; height: 1px; animation-duration: 3s; animation-delay: 2s; }
+      .star:nth-child(4) { top: 45%; left: 60%; width: 2px; height: 2px; animation-duration: 4.5s; animation-delay: 0.8s; }
+      .star:nth-child(5) { top: 55%; left: 15%; width: 2px; height: 2px; animation-duration: 6s; animation-delay: 2.5s; }
+      .star:nth-child(6) { top: 65%; left: 90%; width: 1px; height: 1px; animation-duration: 3.5s; animation-delay: 1.5s; }
+      .star:nth-child(7) { top: 75%; left: 40%; width: 1px; height: 1px; animation-duration: 5.5s; animation-delay: 0.3s; }
+      .star:nth-child(8) { top: 85%; left: 70%; width: 2px; height: 2px; animation-duration: 4s; animation-delay: 3s; }
+      .star:nth-child(9) { top: 5%; left: 50%; width: 1px; height: 1px; animation-duration: 3.2s; animation-delay: 1s; }
+      .star:nth-child(10) { top: 90%; left: 25%; width: 2px; height: 2px; animation-duration: 4.8s; animation-delay: 1.8s; }
+      .star:nth-child(11) { top: 15%; left: 30%; width: 2px; height: 2px; animation-duration: 5.2s; animation-delay: 0.7s; }
+      .star:nth-child(12) { top: 35%; left: 5%; width: 1px; height: 1px; animation-duration: 3.7s; animation-delay: 2.2s; }
+      .star:nth-child(13) { top: 60%; left: 85%; width: 2px; height: 2px; animation-duration: 4.3s; animation-delay: 1.3s; }
+      .star:nth-child(14) { top: 70%; left: 10%; width: 2px; height: 2px; animation-duration: 5.8s; animation-delay: 0.1s; }
+      .star:nth-child(15) { top: 80%; left: 55%; width: 1px; height: 1px; animation-duration: 3.9s; animation-delay: 2.8s; }
+      .star:nth-child(16) { top: 25%; left: 45%; width: 1px; height: 1px; animation-duration: 4.1s; animation-delay: 0.9s; }
+      .star:nth-child(17) { top: 50%; left: 35%; width: 2px; height: 2px; animation-duration: 5.7s; animation-delay: 1.7s; }
+      .star:nth-child(18) { top: 7% ; left: 70%; width: 1px; height: 1px; animation-duration: 3.3s; animation-delay: 2.4s; }
+      .star:nth-child(19) { top: 92% ; left: 50%; width: 2px; height: 2px; animation-duration: 4.9s; animation-delay: 0.6s; }
+      .star:nth-child(20) { top: 40% ; left: 95%; width: 1px; height: 1px; animation-duration: 3.6s; animation-delay: 1.9s; }
+
+
+      /* Custom radial gradient for dark blue night background */
+      .bg-radial-night {
+        background: radial-gradient(circle at top center, #1a202c 0%, #171b3e 30%, #0d0f26 70%, #000000 100%);
+      }
     </style>
 </head>
-<body>
-    <div class="dream-bg">
-        <div class="stars" id="starfield"></div>
-        <div class="relative z-10 max-w-2xl mx-auto px-6 pb-20">
-            <nav class="flex justify-between items-center py-6 text-[10px] font-bold tracking-[0.2em] text-indigo-200/50 uppercase">
-                <div class="flex gap-6">
-                    <span class="text-indigo-400">🌙 Sogno</span>
-                    <span>Simboli & Colori</span>
-                    <span>Memoria</span>
-                </div>
-                <div class="flex gap-4 text-sm"><span>🔊</span><span>ⓘ</span></div>
-            </nav>
-
-            <div class="text-center pt-10 pb-16">
-                <h1 class="psyche-title text-6xl font-bold italic mb-12">Psyche Lens</h1>
-                <p class="text-xl text-slate-300 italic font-light mb-4">"I sogni sono le stelle guida che illuminano il cammino verso la realizzazione del proprio Sè"</p>
-                <p class="text-[10px] tracking-[0.3em] text-indigo-400 uppercase">— Carl Jung</p>
-            </div>
-
-            <div id="input-section">
-                <p class="text-center text-[10px] tracking-[0.4em] text-slate-500 uppercase mb-8 font-bold">AFFIDA IL TUO SOGNO ALLA LENTE</p>
-                <div class="glass p-8 rounded-[2rem]">
-                    <textarea id="dreamInput" class="w-full h-32 bg-transparent text-white border-none outline-none text-lg italic placeholder:text-slate-700" placeholder="Ero un'aquila..."></textarea>
-                    <button onclick="analyzeDream()" id="btnText" class="w-full mt-6 py-4 bg-indigo-600/80 rounded-2xl font-bold tracking-widest hover:bg-indigo-500 transition-all">ANALIZZA VISIONE</button>
-                </div>
-            </div>
-
-            <div id="results" class="glass p-10 rounded-[2.5rem] mt-10">
-                <div class="flex justify-between items-center mb-8">
-                    <span id="resCategory" class="text-[9px] font-black bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full border border-indigo-500/30 uppercase tracking-widest">ARCHETIPO</span>
-                    <button onclick="location.reload()" class="text-slate-600 text-[10px] font-bold">CHIUDI</button>
-                </div>
-                <h2 id="resTitle" class="text-3xl font-bold text-white mb-2 psyche-title">Titolo</h2>
-                <p id="resPhrase" class="text-indigo-200/60 italic text-lg mb-10">Sintesi</p>
-                <div id="resAnalysis" class="text-slate-300 mb-10 leading-relaxed text-lg font-light">Analisi</div>
-                <div class="pt-8 border-t border-white/5">
-                    <h4 class="text-indigo-400 font-bold text-[9px] uppercase mb-3 tracking-widest">SUGGERIMENTI</h4>
-                    <p id="resSugg" class="text-slate-400 italic text-sm"></p>
-                </div>
-            </div>
-        </div>
-        <audio id="bg-music" loop src="https://www.chosic.com/wp-content/uploads/2021/07/Rain-and-Thunder-Relaxing-Ambient.mp3"></audio>
+<body class="min-h-screen text-gray-100 font-sans antialiased relative overflow-hidden">
+    <!-- Background Gradient and Animated Stars Container -->
+    <div class="absolute inset-0 -z-10 bg-radial-night">
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
+      <div class="star"></div>
     </div>
-
-    <script>
-        // Stelle
-        const field = document.getElementById('starfield');
-        for(let i=0; i<150; i++) {
-            const s = document.createElement('div');
-            s.className = 'star';
-            s.style.width = s.style.height = Math.random()*2+'px';
-            s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%';
-            s.style.setProperty('--d', Math.random()*3+2+'s');
-            field.appendChild(s);
-        }
-
-        async function analyzeDream() {
-            const input = document.getElementById('dreamInput').value;
-            if(!input) return;
-            
-            const btn = document.getElementById('btnText');
-            btn.innerText = "EVOCAZIONE...";
-            btn.disabled = true;
-
-            const API_KEY = 'AIzaSyAQdww2E3lA2qbY9Xpk7wKPkSH_vN5eyog';
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-
-            const data = {
-                contents: [{ parts: [{ text: `Analizza questo sogno e rispondi SOLO con un JSON: {"title":"Titolo","phrase":"Sintesi","category":"Ombra","analysis":"Spiegazione","suggestions":"Consiglio"}. Sogno: ${input}` }] }]
-            };
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                const json = await response.json();
-                const text = json.candidates[0].content.parts[0].text;
-                const cleanJson = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
-
-                document.getElementById('input-section').style.display = 'none';
-                document.getElementById('results').style.display = 'block';
-                document.getElementById('resTitle').innerText = cleanJson.title;
-                document.getElementById('resPhrase').innerText = cleanJson.phrase;
-                document.getElementById('resCategory').innerText = cleanJson.category;
-                document.getElementById('resAnalysis').innerText = cleanJson.analysis;
-                document.getElementById('resSugg').innerText = cleanJson.suggestions;
-                
-                document.getElementById('bg-music').play();
-            } catch (error) {
-                console.error(error);
-                alert("Errore di connessione. Controlla la chiave API.");
-                btn.innerText = "ANALIZZA VISIONE";
-                btn.disabled = false;
-            }
-        }
-    </script>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
 </body>
 </html>
