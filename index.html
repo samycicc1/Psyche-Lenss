@@ -16,17 +16,21 @@
         @keyframes moveStar { from { transform: translate(var(--startX), var(--startY)); } to { transform: translate(var(--endX), var(--endY)); } }
         @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .psyche-title { font-family: 'Libre Baskerville', serif; background: linear-gradient(to bottom, #fff, #a5b4fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: titlePulse 5s ease-in-out infinite; }
         @keyframes titlePulse { 0%, 100% { filter: drop-shadow(0 0 10px rgba(129, 140, 248, 0.3)); transform: scale(1); } 50% { filter: drop-shadow(0 0 30px rgba(129, 140, 248, 0.8)); transform: scale(1.02); } }
 
         /* CARICAMENTO ONIRICO */
-        #loader { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.9); z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.95); z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
         .loader-phrase { animation: phraseFade 3s ease-in-out infinite; color: #a5b4fc; font-style: italic; font-size: 1.2rem; text-align: center; max-width: 80%; }
         @keyframes phraseFade { 0%, 100% { opacity: 0; transform: translateY(10px); } 50% { opacity: 1; transform: translateY(0); } }
 
         #results, #info-box { display: none; animation: slideUp 0.8s ease-out forwards; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(129, 140, 248, 0.5); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -52,18 +56,21 @@
                 <p class="text-xl text-slate-300 italic font-light mb-6 leading-relaxed max-w-2xl mx-auto px-4">"I sogni sono le stelle guida che illuminano il cammino verso la realizzazione del proprio Se'"</p>
                 <p class="text-[10px] tracking-[0.5em] text-indigo-400 uppercase font-black">— CARL JUNG</p>
                 
-                <div id="info-box" class="mt-10 glass p-10 rounded-[2.5rem] text-left max-w-2xl mx-auto relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
-                    <h3 id="info-title" class="text-2xl font-bold mb-4 text-white uppercase tracking-tight"></h3>
-                    <p id="info-text" class="text-slate-300 leading-relaxed italic"></p>
-                    <button onclick="document.getElementById('info-box').style.display='none'" class="mt-6 text-[9px] font-bold uppercase tracking-widest text-indigo-400">Chiudi ×</button>
+                <div id="info-box" class="mt-10 glass p-1 rounded-[2.5rem] text-left max-w-2xl mx-auto relative border-indigo-500/30">
+                    <div class="p-10 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                        <h3 id="info-title" class="text-3xl font-bold mb-6 text-indigo-300 uppercase tracking-tighter"></h3>
+                        <div id="info-text" class="text-slate-200 leading-relaxed text-lg space-y-4 font-light"></div>
+                        <div class="mt-10 pt-6 border-t border-white/10 flex justify-center">
+                            <button onclick="document.getElementById('info-box').style.display='none'" class="text-[10px] font-bold uppercase tracking-[0.5em] text-indigo-400 hover:text-white transition-colors border border-indigo-500/30 px-6 py-2 rounded-full">Chiudi Approfondimento ×</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div id="input-section" class="max-w-2xl mx-auto">
                 <div class="glass p-10 rounded-[3rem] text-center">
-                    <h2 class="text-2xl font-bold mb-8 text-white">Esplora il tuo Inconscio</h2>
-                    <textarea id="dreamInput" class="w-full h-56 bg-indigo-950/30 text-white p-8 rounded-3xl border border-indigo-500/20 outline-none text-lg italic placeholder:text-slate-700 resize-none mb-8 focus:border-indigo-400 transition-all" placeholder="Cosa è apparso nel tuo viaggio notturno?"></textarea>
+                    <h2 class="text-2xl font-bold mb-8 text-white tracking-tight">Cosa hai visto nella tua visione?</h2>
+                    <textarea id="dreamInput" class="w-full h-56 bg-indigo-950/30 text-white p-8 rounded-3xl border border-indigo-500/20 outline-none text-lg italic placeholder:text-slate-700 resize-none mb-8 focus:border-indigo-400 transition-all" placeholder="Descrivi il tuo sogno..."></textarea>
                     <button onclick="analyzeDream(false)" id="btnText" class="w-full py-6 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-bold tracking-[0.3em] transition-all text-white shadow-[0_0_20px_rgba(79,70,229,0.4)]">ANALIZZA IL SOGNO</button>
                 </div>
             </div>
@@ -81,12 +88,12 @@
                         </div>
                         <div class="grid md:grid-cols-2 gap-8">
                             <div class="glass p-8 rounded-3xl">
-                                <h4 class="text-indigo-400 font-bold text-[9px] uppercase mb-4 tracking-widest">Cromosimbologia</h4>
-                                <p id="resCromosimbologia" class="text-sm text-slate-300 leading-relaxed italic"></p>
+                                <h4 class="text-indigo-400 font-bold text-[9px] uppercase mb-4 tracking-widest text-center">Cromosimbologia</h4>
+                                <p id="resCromosimbologia" class="text-sm text-slate-300 leading-relaxed italic text-center"></p>
                             </div>
                             <div class="glass p-8 rounded-3xl">
-                                <h4 class="text-indigo-400 font-bold text-[9px] uppercase mb-4 tracking-widest">Il Messaggio</h4>
-                                <p id="resMemory" class="text-sm text-slate-300 leading-relaxed italic"></p>
+                                <h4 class="text-indigo-400 font-bold text-[9px] uppercase mb-4 tracking-widest text-center">Il Messaggio</h4>
+                                <p id="resMemory" class="text-sm text-slate-300 leading-relaxed italic text-center"></p>
                             </div>
                         </div>
                         <button id="deepen-btn" onclick="analyzeDream(true)" class="w-full py-5 border border-indigo-500/30 hover:bg-indigo-500/10 rounded-2xl text-[10px] font-bold tracking-[0.4em] uppercase transition-all text-indigo-200">✨ APPROFONDISCI LA VISIONE</button>
@@ -116,19 +123,33 @@
             "\"Il sogno è la piccola porta occulta che conduce alla parte più nascosta dell'anima.\"",
             "\"I sogni sono la reazione naturale al nostro atteggiamento cosciente.\"",
             "\"Chi guarda dentro si sveglia.\"",
-            "\"Il sogno è il teatro in cui il sognatore è scena, attore, suggeritore e autore.\"",
             "\"Nel sogno l'anima parla un linguaggio che abbiamo dimenticato.\""
         ];
 
-        const infoData = {
-            'CROMOSIMBOLOGIA': "Unione tra simbolo e colore: il blu è spiritualità, il rosso è istinto, l'oro è il Sé realizzato. Ogni visione è una tavolozza della tua anima.",
-            'INFO': "Carl Jung considerava i sogni come messaggi diretti del Sé per guidare l'individuo verso l'equilibrio e l'autenticità (Individuazione)."
+        const sections = {
+            'CROMOSIMBOLOGIA': `
+                <p>La <b>Cromosimbologia</b> è lo studio del linguaggio emotivo dei colori nel teatro dell'inconscio. Jung considerava i colori come espressioni primordiali della libido e delle funzioni psichiche.</p>
+                <p><b class="text-yellow-400">Oro/Giallo:</b> Rappresenta il 'Sol', la coscienza illuminata e il compimento dell'Opera Alchemica. Indica intuizione e saggezza divina.</p>
+                <p><b class="text-blue-400">Blu:</b> Il colore del pensiero, della spiritualità e dell'infinito. Spesso appare quando la psiche richiede distacco o contemplazione profonda.</p>
+                <p><b class="text-red-400">Rosso:</b> Simbolo del sangue, dell'istinto primordiale e della passione. È l'energia vitale che spinge all'azione, ma anche il pericolo dell'emozione incontrollata.</p>
+                <p><b class="text-green-400">Verde:</b> Indica la crescita naturale, la speranza e la rigenerazione. È il colore della 'natura naturans' e dell'equilibrio tra mente e corpo.</p>
+                <p><b class="text-slate-400">Nero:</b> La 'Nigredo'. Non è fine, ma inizio: è il passaggio attraverso l'Ombra, il vuoto necessario per la trasformazione.</p>
+                <p><b class="text-white">Bianco:</b> L''Albedo'. Purezza, chiarezza e distillazione della verità dopo il caos dell'anima.</p>
+            `,
+            'INFO': `
+                <p><b>Carl Gustav Jung (1875-1961)</b> è stato il gigante del pensiero che ha esplorato i territori più remoti dell'anima umana.</p>
+                <p>Nato in Svizzera, Jung fu inizialmente il braccio destro di Freud, ma la sua visione lo portò a separarsi da lui per fondare la <b>Psicologia Analitica</b>. Egli scoprì che i sogni non sono semplici desideri repressi, ma messaggi carichi di senso provenienti dall'<b>Inconscio Collettivo</b>.</p>
+                <p>La sua intera vita fu dedicata al concetto di <b>Individuazione</b>: il processo dinamico attraverso cui un individuo integra la propria parte conscia con l'inconscio (l'Ombra, l'Anima/Animus) per diventare una totalità unica e irripetibile.</p>
+                <p>Psyche Lens rende omaggio alla sua eredità, offrendo uno specchio digitale per osservare i riflessi della propria evoluzione interiore.</p>
+            `
         };
 
         function showSection(type) {
             document.getElementById('info-title').innerText = type;
-            document.getElementById('info-text').innerText = infoData[type];
+            document.getElementById('info-text').innerHTML = sections[type];
             document.getElementById('info-box').style.display = 'block';
+            document.getElementById('input-section').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -140,7 +161,6 @@
             const loaderText = document.getElementById('loaderText');
             loader.style.display = 'flex';
             
-            // Ciclo di frasi durante il caricamento
             let pIdx = 0;
             const phraseInterval = setInterval(() => {
                 loaderText.innerText = jungPhrases[pIdx % jungPhrases.length];
