@@ -8,53 +8,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body { background: #020617; color: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; min-height: 100vh; overflow-x: hidden; }
-        
-        .dream-bg { 
-            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 50%, #020617 100%); 
-            min-height: 100vh; position: relative; padding-bottom: 80px;
-        }
+        .dream-bg { background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 50%, #020617 100%); min-height: 100vh; position: relative; padding-bottom: 80px; }
 
-        /* STELLE CHE SI MUOVONO IN TUTTA LA PAGINA */
+        /* STELLE IN MOVIMENTO */
         .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        .star { 
-            position: absolute; background: white; border-radius: 50%; 
-            animation: moveStar var(--duration) linear infinite, blink var(--blink-dur) infinite; 
-            opacity: 0.8;
-        }
-        @keyframes moveStar {
-            from { transform: translate(var(--startX), var(--startY)); }
-            to { transform: translate(var(--endX), var(--endY)); }
-        }
+        .star { position: absolute; background: white; border-radius: 50%; animation: moveStar var(--duration) linear infinite, blink var(--blink-dur) infinite; opacity: 0.8; }
+        @keyframes moveStar { from { transform: translate(var(--startX), var(--startY)); } to { transform: translate(var(--endX), var(--endY)); } }
         @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-        .shooting-star {
-            position: absolute; width: 3px; height: 1px; background: linear-gradient(90deg, #818cf8, transparent);
-            animation: shoot var(--s) linear infinite; opacity: 0;
-        }
-        @keyframes shoot {
-            0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 0; }
-            10% { opacity: 1; }
-            100% { transform: translateX(-600px) translateY(600px) rotate(-45deg); opacity: 0; }
-        }
+        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .psyche-title { font-family: 'Libre Baskerville', serif; background: linear-gradient(to bottom, #fff, #a5b4fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: titlePulse 5s ease-in-out infinite; }
+        @keyframes titlePulse { 0%, 100% { filter: drop-shadow(0 0 10px rgba(129, 140, 248, 0.3)); transform: scale(1); } 50% { filter: drop-shadow(0 0 30px rgba(129, 140, 248, 0.8)); transform: scale(1.02); } }
 
-        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.4s ease; }
-        
-        .psyche-title { 
-            font-family: 'Libre Baskerville', serif; 
-            background: linear-gradient(to bottom, #fff, #a5b4fc); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            animation: titlePulse 5s ease-in-out infinite;
-        }
-        @keyframes titlePulse {
-            0%, 100% { filter: drop-shadow(0 0 10px rgba(129, 140, 248, 0.3)); transform: scale(1); }
-            50% { filter: drop-shadow(0 0 30px rgba(129, 140, 248, 0.8)); transform: scale(1.02); }
-        }
+        /* CARICAMENTO ONIRICO */
+        #loader { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.9); z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
+        .loader-phrase { animation: phraseFade 3s ease-in-out infinite; color: #a5b4fc; font-style: italic; font-size: 1.2rem; text-align: center; max-width: 80%; }
+        @keyframes phraseFade { 0%, 100% { opacity: 0; transform: translateY(10px); } 50% { opacity: 1; transform: translateY(0); } }
 
         #results, #info-box { display: none; animation: slideUp 0.8s ease-out forwards; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
+    <div id="loader">
+        <div class="loader-phrase" id="loaderText">Incanalando le energie psichiche...</div>
+        <div class="mt-8 w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+    </div>
+
     <div class="dream-bg">
         <div class="stars-container" id="starfield"></div>
         <div class="relative z-10 max-w-4xl mx-auto px-6">
@@ -74,16 +54,16 @@
                 
                 <div id="info-box" class="mt-10 glass p-10 rounded-[2.5rem] text-left max-w-2xl mx-auto relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
-                    <h3 id="info-title" class="text-2xl font-bold mb-4 text-white tracking-tight uppercase"></h3>
+                    <h3 id="info-title" class="text-2xl font-bold mb-4 text-white uppercase tracking-tight"></h3>
                     <p id="info-text" class="text-slate-300 leading-relaxed italic"></p>
-                    <button onclick="document.getElementById('info-box').style.display='none'" class="mt-6 text-[9px] font-bold uppercase tracking-widest text-indigo-400 hover:text-white transition-colors">Chiudi Visione ×</button>
+                    <button onclick="document.getElementById('info-box').style.display='none'" class="mt-6 text-[9px] font-bold uppercase tracking-widest text-indigo-400">Chiudi ×</button>
                 </div>
             </div>
 
             <div id="input-section" class="max-w-2xl mx-auto">
                 <div class="glass p-10 rounded-[3rem] text-center">
                     <h2 class="text-2xl font-bold mb-8 text-white">Esplora il tuo Inconscio</h2>
-                    <textarea id="dreamInput" class="w-full h-56 bg-indigo-950/30 text-white p-8 rounded-3xl border border-indigo-500/20 outline-none text-lg italic placeholder:text-slate-700 resize-none mb-8 focus:border-indigo-400 transition-all" placeholder="Descrivi qui la tua visione..."></textarea>
+                    <textarea id="dreamInput" class="w-full h-56 bg-indigo-950/30 text-white p-8 rounded-3xl border border-indigo-500/20 outline-none text-lg italic placeholder:text-slate-700 resize-none mb-8 focus:border-indigo-400 transition-all" placeholder="Cosa è apparso nel tuo viaggio notturno?"></textarea>
                     <button onclick="analyzeDream(false)" id="btnText" class="w-full py-6 bg-indigo-600 hover:bg-indigo-500 rounded-2xl font-bold tracking-[0.3em] transition-all text-white shadow-[0_0_20px_rgba(79,70,229,0.4)]">ANALIZZA IL SOGNO</button>
                 </div>
             </div>
@@ -92,12 +72,11 @@
                 <div class="glass p-12 rounded-[3rem]">
                     <div class="flex justify-between items-center mb-10">
                         <span id="resCategory" class="text-[10px] font-black bg-indigo-500/30 text-indigo-200 px-6 py-2 rounded-full border border-indigo-500/50 uppercase tracking-widest">ARCHETIPO</span>
-                        <button onclick="location.reload()" class="text-slate-500 text-[10px] font-bold uppercase hover:text-white">Nuovo ↻</button>
                     </div>
                     <h2 id="resTitle" class="text-5xl font-bold text-white mb-10 psyche-title"></h2>
                     <div class="grid gap-10">
                         <div>
-                            <h4 class="text-indigo-400 font-bold text-[11px] uppercase mb-4 tracking-[0.3em]">Interpretazione</h4>
+                            <h4 class="text-indigo-400 font-bold text-[11px] uppercase mb-4 tracking-[0.3em]">Interpretazione Profonda</h4>
                             <p id="resAnalysis" class="text-slate-200 leading-relaxed italic text-xl"></p>
                         </div>
                         <div class="grid md:grid-cols-2 gap-8">
@@ -110,7 +89,7 @@
                                 <p id="resMemory" class="text-sm text-slate-300 leading-relaxed italic"></p>
                             </div>
                         </div>
-                        <button id="deepen-btn" onclick="analyzeDream(true)" class="w-full py-5 border border-indigo-500/30 hover:bg-indigo-500/10 rounded-2xl text-[10px] font-bold tracking-[0.4em] uppercase transition-all text-indigo-200">✨ SCAVA NELL'INCONSCIO (Approfondisci)</button>
+                        <button id="deepen-btn" onclick="analyzeDream(true)" class="w-full py-5 border border-indigo-500/30 hover:bg-indigo-500/10 rounded-2xl text-[10px] font-bold tracking-[0.4em] uppercase transition-all text-indigo-200">✨ APPROFONDISCI LA VISIONE</button>
                     </div>
                 </div>
             </div>
@@ -118,33 +97,32 @@
     </div>
 
     <script>
-        // CREAZIONE STELLE CON MOVIMENTO INFINITO
         const field = document.getElementById('starfield');
-        function initStars() {
-            for(let i=0; i<100; i++) {
-                const s = document.createElement('div');
-                s.className = 'star';
-                const size = Math.random() * 3 + 'px';
-                s.style.width = size; s.style.height = size;
-                
-                // Variabili CSS per animazione movimento
-                s.style.setProperty('--startX', Math.random() * 100 + 'vw');
-                s.style.setProperty('--startY', Math.random() * 100 + 'vh');
-                s.style.setProperty('--endX', Math.random() * 100 + 'vw');
-                s.style.setProperty('--endY', Math.random() * 100 + 'vh');
-                s.style.setProperty('--duration', Math.random() * 50 + 50 + 's');
-                s.style.setProperty('--blink-dur', Math.random() * 3 + 2 + 's');
-                
-                field.appendChild(s);
-            }
+        for(let i=0; i<100; i++) {
+            const s = document.createElement('div'); s.className = 'star';
+            const size = Math.random() * 3 + 'px';
+            s.style.width = size; s.style.height = size;
+            s.style.setProperty('--startX', Math.random() * 100 + 'vw');
+            s.style.setProperty('--startY', Math.random() * 100 + 'vh');
+            s.style.setProperty('--endX', Math.random() * 100 + 'vw');
+            s.style.setProperty('--endY', Math.random() * 100 + 'vh');
+            s.style.setProperty('--duration', Math.random() * 50 + 50 + 's');
+            s.style.setProperty('--blink-dur', Math.random() * 3 + 2 + 's');
+            field.appendChild(s);
         }
-        initStars();
 
-        let currentDreamText = ""; // Memorizza il sogno per l'approfondimento
+        let currentDreamText = "";
+        const jungPhrases = [
+            "\"Il sogno è la piccola porta occulta che conduce alla parte più nascosta dell'anima.\"",
+            "\"I sogni sono la reazione naturale al nostro atteggiamento cosciente.\"",
+            "\"Chi guarda dentro si sveglia.\"",
+            "\"Il sogno è il teatro in cui il sognatore è scena, attore, suggeritore e autore.\"",
+            "\"Nel sogno l'anima parla un linguaggio che abbiamo dimenticato.\""
+        ];
 
         const infoData = {
-            'CROMOSIMBOLOGIA': "In Psyche Lens, la Cromosimbologia rappresenta l'unione tra la forma simbolica e la vibrazione cromatica. Ogni colore nel sogno non è casuale: il blu junghiano spesso richiama la profondità spirituale o il pensiero, mentre il rosso indica la vita, la passione o l'istinto primordiale. Analizzare un simbolo attraverso il suo colore permette di sbloccare il livello emotivo della visione notturna.",
-            'INFO': "Carl Gustav Jung è stato il pioniere che ha trasformato il sogno da 'scarto della mente' a 'porta del Sé'. Egli credeva che i sogni parlassero attraverso archetipi — simboli universali condivisi da tutta l'umanità. Psyche Lens si fonda su questa visione: non interpretiamo segni statici, ma cerchiamo di decifrare il processo di 'Individuazione', ovvero il viaggio che ogni persona compie per diventare chi è realmente."
+            'CROMOSIMBOLOGIA': "Unione tra simbolo e colore: il blu è spiritualità, il rosso è istinto, l'oro è il Sé realizzato. Ogni visione è una tavolozza della tua anima.",
+            'INFO': "Carl Jung considerava i sogni come messaggi diretti del Sé per guidare l'individuo verso l'equilibrio e l'autenticità (Individuazione)."
         };
 
         function showSection(type) {
@@ -155,23 +133,25 @@
         }
 
         async function analyzeDream(isDeepening) {
-            // Se è la prima analisi, salva il testo
-            if(!isDeepening) {
-                currentDreamText = document.getElementById('dreamInput').value;
-            }
-            
+            if(!isDeepening) currentDreamText = document.getElementById('dreamInput').value;
             if(!currentDreamText) return;
+
+            const loader = document.getElementById('loader');
+            const loaderText = document.getElementById('loaderText');
+            loader.style.display = 'flex';
             
-            const btn = document.getElementById(isDeepening ? 'deepen-btn' : 'btnText');
-            btn.innerText = "EVOCAZIONE...";
-            btn.disabled = true;
+            // Ciclo di frasi durante il caricamento
+            let pIdx = 0;
+            const phraseInterval = setInterval(() => {
+                loaderText.innerText = jungPhrases[pIdx % jungPhrases.length];
+                pIdx++;
+            }, 3000);
 
             const API_KEY = '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';
-
             try {
                 const prompt = isDeepening 
-                    ? `Fornisci un'analisi JUNGIANA profondissima ed esoterica del sogno: ${currentDreamText}. Unisci colori e simboli in 'cromosimbologia'. Rispondi SOLO JSON: {"title":"titolo","category":"archetipo","analysis":"testo molto lungo e denso","cromosimbologia":"analisi dettagliata","memory":"consiglio finale"}`
-                    : `Analizza questo sogno in modo poetico: ${currentDreamText}. Rispondi SOLO JSON: {"title":"titolo","category":"archetipo","analysis":"testo","cromosimbologia":"simboli e colori","memory":"messaggio"}`;
+                    ? `Analisi JUNGIANA estrema del sogno: ${currentDreamText}. Unisci colori e simboli in 'cromosimbologia'. Rispondi SOLO JSON: {"title":"titolo","category":"archetipo","analysis":"testo molto lungo","cromosimbologia":"analisi dettagliata","memory":"consiglio"}`
+                    : `Analizza questo sogno: ${currentDreamText}. Rispondi SOLO JSON: {"title":"titolo","category":"archetipo","analysis":"testo","cromosimbologia":"simboli e colori","memory":"messaggio"}`;
 
                 const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                     method: 'POST',
@@ -182,6 +162,8 @@
                 const data = await response.json();
                 const res = JSON.parse(data.choices[0].message.content);
 
+                clearInterval(phraseInterval);
+                loader.style.display = 'none';
                 document.getElementById('input-section').style.display = 'none';
                 document.getElementById('info-box').style.display = 'none';
                 document.getElementById('results').style.display = 'block';
@@ -196,8 +178,9 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
 
             } catch (error) {
-                alert("Errore nella connessione. Riprova.");
-                btn.innerText = "RIPROVA"; btn.disabled = false;
+                clearInterval(phraseInterval);
+                loader.style.display = 'none';
+                alert("La connessione con l'inconscio è instabile.");
             }
         }
     </script>
