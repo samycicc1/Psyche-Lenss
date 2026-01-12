@@ -15,109 +15,22 @@
         .glass { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .psyche-title { font-family: 'Libre Baskerville', serif; background: linear-gradient(to bottom, #fff, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         #results { display: none; }
+        .grid-card { background: rgba(30, 27, 75, 0.2); border: 1px solid rgba(129, 140, 248, 0.1); padding: 1.2rem; border-radius: 1.5rem; }
     </style>
 </head>
 <body>
     <div class="dream-bg">
         <div class="stars" id="starfield"></div>
-        <div class="relative z-10 max-w-2xl mx-auto px-6">
+        <div class="relative z-10 max-w-4xl mx-auto px-6">
             
             <nav class="flex justify-between items-center py-8 text-[10px] font-bold tracking-[0.3em] uppercase">
-                <span class="text-indigo-400" onclick="location.reload()">🌙 SOGNO</span>
-                <span class="text-lg cursor-pointer" onclick="toggleMusic()">🔊</span>
+                <span class="text-indigo-400" onclick="location.reload()" style="cursor:pointer">🌙 SOGNO</span>
+                <div class="flex gap-6 items-center">
+                    <span class="cursor-pointer" title="Info" onclick="alert('Psyche Lens: Esplora l\'inconscio attraverso i tuoi sogni.')">ℹ️ INFO</span>
+                    <span class="text-lg cursor-pointer" onclick="toggleMusic()">🔊</span>
+                </div>
             </nav>
 
             <div class="text-center pt-10 pb-16">
                 <h1 class="psyche-title text-6xl font-bold italic mb-10">Psyche Lens</h1>
-                <p class="text-xl text-slate-300 italic font-light mb-6 leading-relaxed">"I sogni sono le stelle guida verso il Sè"</p>
-                <p class="text-[10px] tracking-[0.4em] text-indigo-400 uppercase font-bold">— CARL JUNG</p>
-            </div>
-
-            <div id="input-section" class="space-y-12">
-                <div class="glass p-8 rounded-[2.5rem] shadow-2xl text-center">
-                    <h2 class="text-2xl font-bold mb-6 text-white">Racconta il tuo Sogno</h2>
-                    <textarea id="dreamInput" class="w-full h-48 bg-indigo-950/20 text-white p-6 rounded-2xl border border-indigo-500/20 outline-none text-lg italic placeholder:text-slate-700 resize-none mb-6" placeholder="Cosa hai visto nella tua visione?"></textarea>
-                    <button onclick="analyzeDream()" id="btnText" class="w-full py-5 bg-indigo-600/80 hover:bg-indigo-500 rounded-2xl font-bold tracking-[0.2em] transition-all text-white shadow-lg">ANALIZZA VISIONE</button>
-                </div>
-            </div>
-
-            <div id="results" class="glass p-10 rounded-[2.5rem] mt-10">
-                <div class="flex justify-between items-center mb-8">
-                    <span id="resCategory" class="text-[9px] font-black bg-indigo-500/20 text-indigo-300 px-4 py-1.5 rounded-full border border-indigo-500/30 uppercase tracking-widest">ARCHETIPO</span>
-                    <button onclick="location.reload()" class="text-slate-600 text-[10px] font-bold uppercase hover:text-white">Chiudi</button>
-                </div>
-                <h2 id="resTitle" class="text-3xl font-bold text-white mb-2 psyche-title"></h2>
-                <div class="space-y-6">
-                    <div>
-                        <h4 class="text-indigo-400 font-bold text-[9px] uppercase mb-2 tracking-widest">Interpretazione</h4>
-                        <p id="resAnalysis" class="text-slate-300 leading-relaxed text-lg font-light italic"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <audio id="bg-music" loop src="https://www.chosic.com/wp-content/uploads/2021/07/Rain-and-Thunder-Relaxing-Ambient.mp3"></audio>
-    </div>
-
-    <script>
-        // Stelle di sfondo
-        const field = document.getElementById('starfield');
-        for(let i=0; i<150; i++) {
-            const s = document.createElement('div');
-            s.className = 'star';
-            s.style.width = s.style.height = Math.random()*2+'px';
-            s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%';
-            s.style.setProperty('--d', Math.random()*3+2+'s');
-            field.appendChild(s);
-        }
-
-        function toggleMusic() {
-            const m = document.getElementById('bg-music');
-            m.paused ? m.play() : m.pause();
-        }
-
-        async function analyzeDream() {
-            const input = document.getElementById('dreamInput').value;
-            if(!input) return;
-            const btn = document.getElementById('btnText');
-            btn.innerText = "EVOCAZIONE...";
-            btn.disabled = true;
-
-            // TUA NUOVA CHIAVE GROQ
-            const API_KEY = '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';
-
-            try {
-                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
-                        messages: [{
-                            role: "user",
-                            content: `Analizza in italiano questo sogno e rispondi solo con un JSON: {"title":"Un titolo evocativo","category":"Archetipo junghiano","analysis":"Interpretazione profonda"}. Sogno: ${input}`
-                        }],
-                        response_format: { type: "json_object" }
-                    })
-                });
-
-                const data = await response.json();
-                const cleanJson = JSON.parse(data.choices[0].message.content);
-
-                document.getElementById('input-section').style.display = 'none';
-                document.getElementById('results').style.display = 'block';
-                document.getElementById('resTitle').innerText = cleanJson.title;
-                document.getElementById('resCategory').innerText = cleanJson.category;
-                document.getElementById('resAnalysis').innerText = cleanJson.analysis;
-                document.getElementById('bg-music').play().catch(() => {});
-
-            } catch (error) {
-                alert("Errore tecnico nell'invocazione. Riprova tra poco.");
-                btn.innerText = "ANALIZZA VISIONE";
-                btn.disabled = false;
-            }
-        }
-    </script>
-</body>
-</html>
+                <p class="text-xl text-slate-300 italic
